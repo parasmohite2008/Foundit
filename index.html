@@ -8,18 +8,15 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
+
     <style>
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
 
         body {
             background: #cbd5e1;
-            font-family: system-ui, -apple-system, sans-serif;
+            font-family: system-ui;
+            /* Using svh (Small Viewport Height) to stay above mobile nav bars */
             height: 100vh;
-            /* Fix for mobile browser address bars */
             height: 100svh; 
             overflow: hidden;
             display: flex;
@@ -37,12 +34,12 @@
             box-shadow: 0 0 40px rgba(0,0,0,.15);
         }
 
-        /* The scrollable area */
-        .page-container {
+        /* The container for all scrollable content */
+        .page-viewport {
             flex: 1;
             overflow-y: auto;
             -webkit-overflow-scrolling: touch;
-            padding-bottom: 80px; /* Space for the bottom nav */
+            padding-bottom: 90px; /* Room for Bottom Nav */
         }
 
         .page {
@@ -55,26 +52,10 @@
             to { opacity: 1; transform: translateY(0); }
         }
 
-        .input {
-            width: 100%;
-            background: #f8fafc;
-            border: 1px solid #e2e8f0;
-            padding: 15px;
-            border-radius: 18px;
-            outline: none;
-        }
-
+        /* Fixed components styles */
+        .input { width: 100%; background: #f8fafc; border: 1px solid #e2e8f0; padding: 15px; border-radius: 18px; outline: none; }
         .input:focus { border-color: #4f46e5; }
-
-        .catBtn {
-            border: 1px solid #e5e7eb;
-            padding: 12px;
-            border-radius: 16px;
-            background: white;
-            font-size: 13px;
-            font-weight: 700;
-        }
-
+        .catBtn { border: 1px solid #e5e7eb; padding: 12px; border-radius: 16px; background: white; font-size: 13px; font-weight: 700; }
         .activeCat { background: #4f46e5; color: white; }
         .nav-active { color: #4f46e5 !important; }
         .hiddenPage { display: none; }
@@ -82,18 +63,20 @@
         nav {
             position: absolute;
             bottom: 0;
-            width: 100%;
+            left: 0;
+            right: 0;
             background: white;
-            border-top: 1px solid #f1f5f9;
+            border-top: 1px solid #e2e8f0;
+            /* env(safe-area-inset-bottom) fixes visibility on modern notched phones */
             padding-bottom: env(safe-area-inset-bottom);
-            z-index: 100;
+            z-index: 50;
         }
     </style>
 </head>
 <body>
 
-<!-- AUTH SECTION -->
-<div id="authBox" class="fixed inset-0 z-[200] bg-slate-300 flex items-center justify-center p-5">
+<!-- AUTH -->
+<div id="authBox" class="fixed inset-0 bg-slate-300 z-[1000] flex items-center justify-center p-5">
     <div class="bg-white p-8 rounded-3xl shadow-xl w-full max-w-sm">
         <div class="flex justify-center mb-5">
             <div class="bg-indigo-100 p-4 rounded-3xl">
@@ -108,10 +91,10 @@
     </div>
 </div>
 
-<!-- MAIN APP CONTAINER -->
+<!-- APP -->
 <div id="appBox" class="app hidden">
-    <!-- HEADER -->
-    <header class="bg-white border-b px-5 pt-6 pb-4 flex items-center justify-between shrink-0">
+    <!-- HEADER (Fixed at top) -->
+    <div class="bg-white border-b px-5 pt-6 pb-4 flex items-center justify-between shrink-0">
         <div>
             <h1 class="text-2xl font-black text-indigo-600">FoundIt</h1>
             <p class="text-xs text-gray-400">Lost & Found Community</p>
@@ -122,15 +105,15 @@
                 <i data-lucide="search" class="w-4 h-4 text-indigo-600"></i>
             </button>
         </div>
-    </header>
+    </div>
 
-    <!-- PAGES -->
-    <main class="page-container">
-        <!-- HOME PAGE -->
+    <!-- VIEWPORT FOR PAGES (Scrollable) -->
+    <div class="page-viewport">
+        <!-- HOME -->
         <div id="homePage" class="page">
             <div class="flex gap-2 mb-5">
                 <select id="filterType" class="flex-1 bg-slate-100 p-3 rounded-2xl text-sm outline-none">
-                    <option value="All">All Type</option>
+                    <option value="All">All</option>
                     <option value="Lost">Lost</option>
                     <option value="Found">Found</option>
                 </select>
@@ -147,11 +130,11 @@
             <div id="items" class="space-y-5"></div>
         </div>
 
-        <!-- POST PAGE -->
+        <!-- POST -->
         <div id="postPage" class="page hiddenPage">
             <div class="bg-slate-100 p-1 rounded-2xl flex gap-1 mb-5">
-                <button id="lostBtn" class="flex-1 bg-red-500 text-white p-3 rounded-xl font-bold transition">Lost</button>
-                <button id="foundBtn" class="flex-1 text-gray-500 p-3 rounded-xl font-bold transition">Found</button>
+                <button id="lostBtn" class="flex-1 bg-red-500 text-white p-3 rounded-xl font-bold">Lost</button>
+                <button id="foundBtn" class="flex-1 text-gray-500 p-3 rounded-xl font-bold">Found</button>
             </div>
             <label id="imageLabel" class="border-2 border-dashed border-slate-200 bg-slate-50 rounded-3xl h-52 flex flex-col justify-center items-center mb-5 cursor-pointer">
                 <i data-lucide="camera" class="w-10 h-10 text-gray-400 mb-2"></i>
@@ -180,7 +163,7 @@
             <button id="submitBtn" class="w-full bg-indigo-600 text-white p-4 rounded-2xl font-bold shadow-lg">Post Item</button>
         </div>
 
-        <!-- ABOUT PAGE -->
+        <!-- ABOUT -->
         <div id="aboutPage" class="page hiddenPage">
             <div class="bg-indigo-50 w-20 h-20 rounded-3xl flex items-center justify-center mx-auto mb-5">
                 <i data-lucide="heart" class="w-10 h-10 text-indigo-600"></i>
@@ -189,7 +172,7 @@
             <p class="text-center text-gray-500 leading-relaxed">FoundIt helps people reconnect with their lost belongings quickly using community reports.</p>
         </div>
 
-        <!-- PROFILE PAGE -->
+        <!-- PROFILE -->
         <div id="profilePage" class="page hiddenPage">
             <div class="bg-gradient-to-r from-indigo-500 to-purple-500 rounded-3xl p-6 text-white mb-5">
                 <div class="flex items-center gap-4">
@@ -206,26 +189,26 @@
             <h3 class="font-bold text-lg mb-4">My Reports</h3>
             <div id="myPosts" class="space-y-3"></div>
         </div>
-    </main>
+    </div>
 
-    <!-- NAVIGATION BAR -->
+    <!-- BOTTOM NAV (Fixed at absolute bottom) -->
     <nav>
         <div class="flex justify-around py-3">
             <button id="homeBtn" class="navBtn flex flex-col items-center text-indigo-600 nav-active">
                 <i data-lucide="home" class="w-5 h-5"></i>
-                <span class="text-[11px] mt-1 font-medium">Home</span>
+                <span class="text-[11px] mt-1">Home</span>
             </button>
             <button id="postBtn" class="navBtn flex flex-col items-center text-gray-400">
                 <i data-lucide="plus-circle" class="w-5 h-5"></i>
-                <span class="text-[11px] mt-1 font-medium">Post</span>
+                <span class="text-[11px] mt-1">Post</span>
             </button>
             <button id="aboutBtn" class="navBtn flex flex-col items-center text-gray-400">
                 <i data-lucide="info" class="w-5 h-5"></i>
-                <span class="text-[11px] mt-1 font-medium">About</span>
+                <span class="text-[11px] mt-1">About</span>
             </button>
             <button id="profileBtn" class="navBtn flex flex-col items-center text-gray-400">
                 <i data-lucide="user" class="w-5 h-5"></i>
-                <span class="text-[11px] mt-1 font-medium">Profile</span>
+                <span class="text-[11px] mt-1">Profile</span>
             </button>
         </div>
     </nav>
@@ -252,28 +235,33 @@
     let currentUser = null;
     let postType = "Lost";
 
-    const pageIds = [homePage, postPage, aboutPage, profilePage];
-    const navBtns = [homeBtn, postBtn, aboutBtn, profileBtn];
+    const pages = {
+        home: homePage,
+        post: postPage,
+        about: aboutPage,
+        profile: profilePage
+    };
 
-    function show(targetPage, targetBtn) {
-        pageIds.forEach(p => p.classList.add("hiddenPage"));
-        targetPage.classList.remove("hiddenPage");
+    function show(pageKey, btn) {
+        Object.values(pages).forEach(p => p.classList.add("hiddenPage"));
+        pages[pageKey].classList.remove("hiddenPage");
         
-        navBtns.forEach(b => {
+        document.querySelectorAll(".navBtn").forEach(b => {
             b.classList.remove("nav-active", "text-indigo-600");
             b.classList.add("text-gray-400");
         });
-        targetBtn.classList.add("nav-active", "text-indigo-600");
-        targetBtn.classList.remove("text-gray-400");
         
-        // Reset scroll position on page change
-        document.querySelector('.page-container').scrollTop = 0;
+        btn.classList.add("nav-active", "text-indigo-600");
+        btn.classList.remove("text-gray-400");
+        
+        // Reset scroll position to top when switching pages
+        document.querySelector('.page-viewport').scrollTop = 0;
     }
 
-    homeBtn.onclick = () => show(homePage, homeBtn);
-    postBtn.onclick = () => show(postPage, postBtn);
-    aboutBtn.onclick = () => show(aboutPage, aboutBtn);
-    profileBtn.onclick = () => show(profilePage, profileBtn);
+    homeBtn.onclick = () => show('home', homeBtn);
+    postBtn.onclick = () => show('post', postBtn);
+    aboutBtn.onclick = () => show('about', aboutBtn);
+    profileBtn.onclick = () => show('profile', profileBtn);
 
     onAuthStateChanged(auth, user => {
         if(user){
@@ -301,14 +289,14 @@
 
     lostBtn.onclick = () => {
         postType = "Lost";
-        lostBtn.className = "flex-1 bg-red-500 text-white p-3 rounded-xl font-bold";
-        foundBtn.className = "flex-1 text-gray-500 p-3 rounded-xl font-bold";
+        lostBtn.classList.add("bg-red-500","text-white");
+        foundBtn.classList.remove("bg-emerald-500","text-white");
     };
 
     foundBtn.onclick = () => {
         postType = "Found";
-        foundBtn.className = "flex-1 bg-emerald-500 text-white p-3 rounded-xl font-bold";
-        lostBtn.className = "flex-1 text-gray-500 p-3 rounded-xl font-bold";
+        foundBtn.classList.add("bg-emerald-500","text-white");
+        lostBtn.classList.remove("bg-red-500","text-white");
     };
 
     document.querySelectorAll(".catBtn").forEach(btn => {
@@ -338,44 +326,38 @@
         if(!title.value || !contactPhone.value){
             return alert("Please fill all required fields");
         }
-        submitBtn.disabled = true;
         submitBtn.innerText = "Uploading...";
         let imageUrl = "";
-        try {
-            if(image.files[0]){
-                const form = new FormData();
-                form.append("image", image.files[0]);
-                const res = await fetch(`https://api.imgbb.com/1/upload?key=${IMGBB_KEY}`, { method:"POST", body:form });
-                const data = await res.json();
-                imageUrl = data.data.url;
-            }
-            await addDoc(collection(db, "items"), {
-                title:title.value,
-                desc:desc.value,
-                location:itemLocation.value,
-                category:category.value,
-                type:postType,
-                imageUrl,
-                phone:contactPhone.value,
-                user:currentUser.uid,
-                status:"Open",
-                timestamp:Date.now()
-            });
-            // Reset fields
-            title.value = ""; desc.value = ""; itemLocation.value = ""; contactPhone.value = "";
-            removeImageBtn.click();
-            loadItems(); loadMyPosts();
-            show(homePage, homeBtn);
-        } catch(e) {
-            alert("Error posting item");
-        } finally {
-            submitBtn.disabled = false;
-            submitBtn.innerText = "Post Item";
+        if(image.files[0]){
+            const form = new FormData();
+            form.append("image", image.files[0]);
+            const res = await fetch(`https://api.imgbb.com/1/upload?key=${IMGBB_KEY}`, { method:"POST", body:form });
+            const data = await res.json();
+            imageUrl = data.data.url;
         }
+        await addDoc(collection(db, "items"), {
+            title:title.value,
+            desc:desc.value,
+            location:itemLocation.value,
+            category:category.value,
+            type:postType,
+            imageUrl,
+            phone:contactPhone.value,
+            user:currentUser.uid,
+            status:"Open",
+            timestamp:Date.now()
+        });
+        title.value = ""; desc.value = ""; itemLocation.value = ""; contactPhone.value = "";
+        removeImageBtn.click();
+        submitBtn.innerText = "Post Item";
+        loadItems();
+        loadMyPosts();
+        show('home', homeBtn);
     };
 
     searchBtn.onclick = () => loadItems(searchInput.value);
     searchInput.onkeyup = (e) => { if(e.key === "Enter") loadItems(searchInput.value); };
+
     filterType.onchange = () => loadItems();
     filterCat.onchange = () => loadItems();
 
@@ -387,6 +369,7 @@
         snap.forEach(d => {
             const it = d.data();
             const matchesSearch = it.title.toLowerCase().includes(keyword.toLowerCase());
+            
             if(matchesSearch && (filterType.value === "All" || it.type === filterType.value) && (filterCat.value === "All" || it.category === filterCat.value)){
                 items.innerHTML += `
                 <div class="bg-white rounded-3xl overflow-hidden border border-slate-100 shadow-sm">
@@ -407,7 +390,9 @@
                                 <p class="text-xs text-gray-400">Location</p>
                                 <p class="font-semibold text-sm">${it.location || "Unknown"}</p>
                             </div>
-                            <div class="text-indigo-600 text-sm font-bold">Call: ${it.phone}</div>
+                            <div class="text-indigo-600 text-sm font-bold">
+                                Contact: ${it.phone}
+                            </div>
                         </div>
                     </div>
                 </div>`;
@@ -426,9 +411,9 @@
                 <div class="bg-slate-50 p-4 rounded-2xl flex justify-between items-center">
                     <div>
                         <p class="font-bold">${it.title}</p>
-                        <button onclick="window.toggleStatus('${d.id}','${it.status}')" class="text-xs bg-indigo-100 text-indigo-600 px-3 py-1 rounded-lg mt-2">${it.status === "Open" ? "Mark Resolved" : "Reopen"}</button>
+                        <button onclick="toggleStatus('${d.id}','${it.status}')" class="text-xs bg-indigo-100 text-indigo-600 px-3 py-1 rounded-lg mt-2">${it.status === "Open" ? "Mark Resolved" : "Reopen"}</button>
                     </div>
-                    <button onclick="window.deletePost('${d.id}')" class="text-red-500 p-2"><i data-lucide="trash-2" class="w-5 h-5"></i></button>
+                    <button onclick="deletePost('${d.id}')" class="text-red-500"><i data-lucide="trash-2" class="w-5 h-5"></i></button>
                 </div>`;
             }
         });
@@ -447,5 +432,6 @@
         }
     };
 </script>
+
 </body>
 </html>
