@@ -1,194 +1,140 @@
-<meta name='viewport' content='width=device-width, initial-scale=1'/><!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>FoundIt App</title>
+    <meta name="theme-color" content="#4f46e5">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
 
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+        body {
+            background: #cbd5e1;
+            font-family: system-ui, -apple-system, sans-serif;
+            height: 100vh;
+            /* Fix for mobile browser address bars */
+            height: 100svh; 
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+        }
 
-<title>FoundIt App</title>
+        .app {
+            width: 100%;
+            max-width: 430px;
+            height: 100%;
+            background: white;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 0 40px rgba(0,0,0,.15);
+        }
 
-<meta name="theme-color" content="#4f46e5">
-<meta name="apple-mobile-web-app-capable" content="yes">
+        /* The scrollable area */
+        .page-container {
+            flex: 1;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+            padding-bottom: 80px; /* Space for the bottom nav */
+        }
 
-<script src="https://cdn.tailwindcss.com"></script>
-<script src="https://unpkg.com/lucide@latest"></script>
+        .page {
+            padding: 16px;
+            animation: slide .25s ease;
+        }
 
-<style>
+        @keyframes slide {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
 
-body{
-    background:#cbd5e1;
-    font-family:system-ui;
-    overflow:hidden;
-}
+        .input {
+            width: 100%;
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            padding: 15px;
+            border-radius: 18px;
+            outline: none;
+        }
 
-.app{
-    max-width:430px;
-    margin:auto;
-    height:100vh;
-    background:white;
-    position:relative;
-    overflow:hidden;
-    box-shadow:0 0 40px rgba(0,0,0,.15);
-}
+        .input:focus { border-color: #4f46e5; }
 
-.page{
-    height:calc(100vh - 140px);
-    overflow-y:auto;
-    padding:16px;
-    animation:slide .25s ease;
-}
+        .catBtn {
+            border: 1px solid #e5e7eb;
+            padding: 12px;
+            border-radius: 16px;
+            background: white;
+            font-size: 13px;
+            font-weight: 700;
+        }
 
-@keyframes slide{
-    from{
-        opacity:0;
-        transform:translateY(10px);
-    }
-    to{
-        opacity:1;
-        transform:translateY(0);
-    }
-}
+        .activeCat { background: #4f46e5; color: white; }
+        .nav-active { color: #4f46e5 !important; }
+        .hiddenPage { display: none; }
 
-.input{
-    width:100%;
-    background:#f8fafc;
-    border:1px solid #e2e8f0;
-    padding:15px;
-    border-radius:18px;
-    outline:none;
-}
-
-.input:focus{
-    border-color:#4f46e5;
-}
-
-.catBtn{
-    border:1px solid #e5e7eb;
-    padding:12px;
-    border-radius:16px;
-    background:white;
-    font-size:13px;
-    font-weight:700;
-}
-
-.activeCat{
-    background:#4f46e5;
-    color:white;
-}
-
-.nav-active{
-    color:#4f46e5 !important;
-}
-
-.hiddenPage{
-    display:none;
-}
-
-</style>
-
+        nav {
+            position: absolute;
+            bottom: 0;
+            width: 100%;
+            background: white;
+            border-top: 1px solid #f1f5f9;
+            padding-bottom: env(safe-area-inset-bottom);
+            z-index: 100;
+        }
+    </style>
 </head>
-
 <body>
 
-<!-- AUTH -->
-
-<div id="authBox"
-    class="min-h-screen flex items-center justify-center p-5">
-
+<!-- AUTH SECTION -->
+<div id="authBox" class="fixed inset-0 z-[200] bg-slate-300 flex items-center justify-center p-5">
     <div class="bg-white p-8 rounded-3xl shadow-xl w-full max-w-sm">
-
         <div class="flex justify-center mb-5">
-
             <div class="bg-indigo-100 p-4 rounded-3xl">
-
-                <i data-lucide="search"
-                    class="w-10 h-10 text-indigo-600"></i>
-
+                <i data-lucide="search" class="w-10 h-10 text-indigo-600"></i>
             </div>
-
         </div>
-
-        <h1 class="text-3xl font-black text-center mb-8">
-            FoundIt
-        </h1>
-
-        <input id="email"
-            type="email"
-            placeholder="Email"
-            class="input mb-4">
-
-        <input id="password"
-            type="password"
-            placeholder="Password"
-            class="input mb-5">
-
-        <button id="loginBtn"
-            class="w-full bg-indigo-600 text-white p-4 rounded-2xl font-bold mb-3">
-
-            Login
-
-        </button>
-
-        <button id="registerBtn"
-            class="w-full border p-4 rounded-2xl font-bold">
-
-            Create Account
-
-        </button>
-
+        <h1 class="text-3xl font-black text-center mb-8">FoundIt</h1>
+        <input id="email" type="email" placeholder="Email" class="input mb-4">
+        <input id="password" type="password" placeholder="Password" class="input mb-5">
+        <button id="loginBtn" class="w-full bg-indigo-600 text-white p-4 rounded-2xl font-bold mb-3">Login</button>
+        <button id="registerBtn" class="w-full border p-4 rounded-2xl font-bold">Create Account</button>
     </div>
-
 </div>
 
-<!-- APP -->
-
-<div id="appBox" class="hidden">
-
-    <div class="app">
-
-        <!-- HEADER -->
-
-        <div class="bg-white border-b px-5 pt-6 pb-4 flex items-center justify-between">
-
-            <div>
-
-                <h1 class="text-2xl font-black text-indigo-600">
-                    FoundIt
-                </h1>
-
-                <p class="text-xs text-gray-400">
-                    Lost & Found Community
-                </p>
-
-            </div>
-
-            <div class="flex items-center gap-2 bg-indigo-50 p-2 rounded-2xl border border-indigo-100">
-                <input id="searchInput" type="text" placeholder="Search..." class="bg-transparent text-sm outline-none px-2 w-24">
-                <button id="searchBtn" class="bg-indigo-100 p-2 rounded-xl">
-                    <i data-lucide="search" class="w-4 h-4 text-indigo-600"></i>
-                </button>
-            </div>
-
+<!-- MAIN APP CONTAINER -->
+<div id="appBox" class="app hidden">
+    <!-- HEADER -->
+    <header class="bg-white border-b px-5 pt-6 pb-4 flex items-center justify-between shrink-0">
+        <div>
+            <h1 class="text-2xl font-black text-indigo-600">FoundIt</h1>
+            <p class="text-xs text-gray-400">Lost & Found Community</p>
         </div>
+        <div class="flex items-center gap-2 bg-indigo-50 p-2 rounded-2xl border border-indigo-100">
+            <input id="searchInput" type="text" placeholder="Search..." class="bg-transparent text-sm outline-none px-2 w-24">
+            <button id="searchBtn" class="bg-indigo-100 p-2 rounded-xl">
+                <i data-lucide="search" class="w-4 h-4 text-indigo-600"></i>
+            </button>
+        </div>
+    </header>
 
-        <!-- HOME -->
-
+    <!-- PAGES -->
+    <main class="page-container">
+        <!-- HOME PAGE -->
         <div id="homePage" class="page">
-
             <div class="flex gap-2 mb-5">
-
-                <select id="filterType"
-                    class="flex-1 bg-slate-100 p-3 rounded-2xl text-sm outline-none">
-
-                    <option value="All">All</option>
+                <select id="filterType" class="flex-1 bg-slate-100 p-3 rounded-2xl text-sm outline-none">
+                    <option value="All">All Type</option>
                     <option value="Lost">Lost</option>
                     <option value="Found">Found</option>
-
                 </select>
-
-                <select id="filterCat"
-                    class="flex-1 bg-slate-100 p-3 rounded-2xl text-sm outline-none">
-
+                <select id="filterCat" class="flex-1 bg-slate-100 p-3 rounded-2xl text-sm outline-none">
                     <option value="All">All Categories</option>
                     <option value="Electronics">Electronics</option>
                     <option value="Wallets">Wallets</option>
@@ -196,515 +142,310 @@ body{
                     <option value="Accessories">Accessories</option>
                     <option value="Keys">Keys</option>
                     <option value="Bags">Bags</option>
-
                 </select>
-
             </div>
-
-            <div id="items"
-                class="space-y-5 pb-32"></div>
-
+            <div id="items" class="space-y-5"></div>
         </div>
 
-        <!-- POST -->
-
-        <div id="postPage"
-            class="page hiddenPage">
-
+        <!-- POST PAGE -->
+        <div id="postPage" class="page hiddenPage">
             <div class="bg-slate-100 p-1 rounded-2xl flex gap-1 mb-5">
-
-                <button id="lostBtn"
-                    class="flex-1 bg-red-500 text-white p-3 rounded-xl font-bold">
-
-                    Lost
-
-                </button>
-
-                <button id="foundBtn"
-                    class="flex-1 text-gray-500 p-3 rounded-xl font-bold">
-
-                    Found
-
-                </button>
-
+                <button id="lostBtn" class="flex-1 bg-red-500 text-white p-3 rounded-xl font-bold transition">Lost</button>
+                <button id="foundBtn" class="flex-1 text-gray-500 p-3 rounded-xl font-bold transition">Found</button>
             </div>
-
-            <label id="imageLabel"
-                class="border-2 border-dashed border-slate-200 bg-slate-50 rounded-3xl h-52 flex flex-col justify-center items-center mb-5 cursor-pointer">
-
-                <i data-lucide="camera"
-                    class="w-10 h-10 text-gray-400 mb-2"></i>
-
-                <p class="font-bold text-gray-500">
-
-                    Upload Photo
-
-                </p>
-
-                <input type="file"
-                    id="image"
-                    class="hidden"
-                    accept="image/*">
-
+            <label id="imageLabel" class="border-2 border-dashed border-slate-200 bg-slate-50 rounded-3xl h-52 flex flex-col justify-center items-center mb-5 cursor-pointer">
+                <i data-lucide="camera" class="w-10 h-10 text-gray-400 mb-2"></i>
+                <p class="font-bold text-gray-500">Upload Photo</p>
+                <input type="file" id="image" class="hidden" accept="image/*">
             </label>
-
-            <div id="imagePreviewContainer"
-                class="hidden relative mb-5">
-
-                <img id="imagePreview"
-                    class="w-full h-56 object-cover rounded-3xl">
-
-                <button id="removeImageBtn"
-                    class="absolute top-3 right-3 bg-red-500 text-white p-2 rounded-full">
-
-                    <i data-lucide="x"
-                        class="w-4 h-4"></i>
-
+            <div id="imagePreviewContainer" class="hidden relative mb-5">
+                <img id="imagePreview" class="w-full h-56 object-cover rounded-3xl">
+                <button id="removeImageBtn" class="absolute top-3 right-3 bg-red-500 text-white p-2 rounded-full">
+                    <i data-lucide="x" class="w-4 h-4"></i>
                 </button>
-
             </div>
-
-            <input id="title"
-                placeholder="Item title"
-                class="input mb-4">
-
-            <textarea id="desc"
-                placeholder="Description"
-                class="input h-28 resize-none mb-4"></textarea>
-
-            <div id="categoryGrid"
-                class="grid grid-cols-2 gap-2 mb-5">
-
-                <button class="catBtn activeCat">
-                    💻 Electronics
-                </button>
-
-                <button class="catBtn">
-                    👛 Wallets
-                </button>
-
-                <button class="catBtn">
-                    📄 Documents
-                </button>
-
-                <button class="catBtn">
-                    ⌚ Accessories
-                </button>
-
-                <button class="catBtn">
-                    🔑 Keys
-                </button>
-
-                <button class="catBtn">
-                    👜 Bags
-                </button>
-
+            <input id="title" placeholder="Item title" class="input mb-4">
+            <textarea id="desc" placeholder="Description" class="input h-28 resize-none mb-4"></textarea>
+            <div id="categoryGrid" class="grid grid-cols-2 gap-2 mb-5">
+                <button class="catBtn activeCat">💻 Electronics</button>
+                <button class="catBtn">👛 Wallets</button>
+                <button class="catBtn">📄 Documents</button>
+                <button class="catBtn">⌚ Accessories</button>
+                <button class="catBtn">🔑 Keys</button>
+                <button class="catBtn">👜 Bags</button>
             </div>
-
-            <input type="hidden"
-                id="category"
-                value="Electronics">
-
-            <input id="itemLocation"
-                placeholder="Location"
-                class="input mb-4">
-
-            <input id="contactPhone"
-                placeholder="Phone Number"
-                class="input mb-10">
-
-            <button id="submitBtn"
-                class="w-full bg-indigo-600 text-white p-4 rounded-2xl font-bold shadow-lg mb-20">
-
-                Post Item
-
-            </button>
-
+            <input type="hidden" id="category" value="Electronics">
+            <input id="itemLocation" placeholder="Location" class="input mb-4">
+            <input id="contactPhone" placeholder="Phone Number" class="input mb-10">
+            <button id="submitBtn" class="w-full bg-indigo-600 text-white p-4 rounded-2xl font-bold shadow-lg">Post Item</button>
         </div>
 
-        <!-- ABOUT -->
-
-        <div id="aboutPage"
-            class="page hiddenPage">
-
+        <!-- ABOUT PAGE -->
+        <div id="aboutPage" class="page hiddenPage">
             <div class="bg-indigo-50 w-20 h-20 rounded-3xl flex items-center justify-center mx-auto mb-5">
-
-                <i data-lucide="heart"
-                    class="w-10 h-10 text-indigo-600"></i>
-
+                <i data-lucide="heart" class="w-10 h-10 text-indigo-600"></i>
             </div>
-
-            <h2 class="text-3xl font-black text-center mb-4">
-
-                About FoundIt
-
-            </h2>
-
-            <p class="text-center text-gray-500 leading-relaxed">
-
-                FoundIt helps people reconnect with their lost belongings quickly using community reports.
-
-            </p>
-
+            <h2 class="text-3xl font-black text-center mb-4">About FoundIt</h2>
+            <p class="text-center text-gray-500 leading-relaxed">FoundIt helps people reconnect with their lost belongings quickly using community reports.</p>
         </div>
 
-        <!-- PROFILE -->
-
-        <div id="profilePage"
-            class="page hiddenPage">
-
+        <!-- PROFILE PAGE -->
+        <div id="profilePage" class="page hiddenPage">
             <div class="bg-gradient-to-r from-indigo-500 to-purple-500 rounded-3xl p-6 text-white mb-5">
-
                 <div class="flex items-center gap-4">
-
                     <div class="w-16 h-16 rounded-2xl bg-white/20 flex items-center justify-center">
-
-                        <i data-lucide="user"
-                            class="w-8 h-8"></i>
-
+                        <i data-lucide="user" class="w-8 h-8"></i>
                     </div>
-
                     <div>
-
-                        <h2 class="font-black text-xl">
-                            My Account
-                        </h2>
-
-                        <p id="userEmail"
-                            class="text-sm opacity-80"></p>
-
+                        <h2 class="font-black text-xl">My Account</h2>
+                        <p id="userEmail" class="text-sm opacity-80"></p>
                     </div>
-
                 </div>
-
             </div>
-
-            <button id="logoutBtn"
-                class="w-full bg-red-50 text-red-500 p-4 rounded-2xl font-bold mb-5">
-
-                Logout
-
-            </button>
-
-            <h3 class="font-bold text-lg mb-4">
-
-                My Reports
-
-            </h3>
-
-            <div id="myPosts"
-                class="space-y-3 pb-24"></div>
-
+            <button id="logoutBtn" class="w-full bg-red-50 text-red-500 p-4 rounded-2xl font-bold mb-5">Logout</button>
+            <h3 class="font-bold text-lg mb-4">My Reports</h3>
+            <div id="myPosts" class="space-y-3"></div>
         </div>
+    </main>
 
-        <!-- BOTTOM NAV -->
-
-        <nav class="absolute bottom-0 left-0 right-0 bg-white border-t">
-
-            <div class="flex justify-around py-3">
-
-                <button id="homeBtn"
-                    class="navBtn flex flex-col items-center text-gray-400">
-
-                    <i data-lucide="home"
-                        class="w-5 h-5"></i>
-
-                    <span class="text-[11px] mt-1">
-                        Home
-                    </span>
-
-                </button>
-
-                <button id="postBtn"
-                    class="navBtn flex flex-col items-center text-gray-400">
-
-                    <i data-lucide="plus-circle"
-                        class="w-5 h-5"></i>
-
-                    <span class="text-[11px] mt-1">
-                        Post
-                    </span>
-
-                </button>
-
-                <button id="aboutBtn"
-                    class="navBtn flex flex-col items-center text-gray-400">
-
-                    <i data-lucide="info"
-                        class="w-5 h-5"></i>
-
-                    <span class="text-[11px] mt-1">
-                        About
-                    </span>
-
-                </button>
-
-                <button id="profileBtn"
-                    class="navBtn flex flex-col items-center text-gray-400">
-
-                    <i data-lucide="user"
-                        class="w-5 h-5"></i>
-
-                    <span class="text-[11px] mt-1">
-                        Profile
-                    </span>
-
-                </button>
-
-            </div>
-
-        </nav>
-
-    </div>
-
+    <!-- NAVIGATION BAR -->
+    <nav>
+        <div class="flex justify-around py-3">
+            <button id="homeBtn" class="navBtn flex flex-col items-center text-indigo-600 nav-active">
+                <i data-lucide="home" class="w-5 h-5"></i>
+                <span class="text-[11px] mt-1 font-medium">Home</span>
+            </button>
+            <button id="postBtn" class="navBtn flex flex-col items-center text-gray-400">
+                <i data-lucide="plus-circle" class="w-5 h-5"></i>
+                <span class="text-[11px] mt-1 font-medium">Post</span>
+            </button>
+            <button id="aboutBtn" class="navBtn flex flex-col items-center text-gray-400">
+                <i data-lucide="info" class="w-5 h-5"></i>
+                <span class="text-[11px] mt-1 font-medium">About</span>
+            </button>
+            <button id="profileBtn" class="navBtn flex flex-col items-center text-gray-400">
+                <i data-lucide="user" class="w-5 h-5"></i>
+                <span class="text-[11px] mt-1 font-medium">Profile</span>
+            </button>
+        </div>
+    </nav>
 </div>
 
 <script type="module">
+    lucide.createIcons();
 
-lucide.createIcons();
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+    import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+    import { getFirestore, collection, addDoc, getDocs, deleteDoc, updateDoc, doc, query, orderBy } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-
-import {
-    getAuth,
-    createUserWithEmailAndPassword,
-    signInWithEmailAndPassword,
-    onAuthStateChanged,
-    signOut
-} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-
-import {
-    getFirestore,
-    collection,
-    addDoc,
-    getDocs,
-    deleteDoc,
-    updateDoc,
-    doc,
-    query,
-    orderBy
-} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-
-const firebaseConfig = {
-    apiKey: "AIzaSyCaQVBo1ySGYme84ujN8v6dMZdGwRGefa8",
-    authDomain: "lost-and-found-a53a3.firebaseapp.com",
-    projectId: "lost-and-found-a53a3"
-};
-
-const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
-const db = getFirestore(app);
-
-const IMGBB_KEY = "5a78877aa822d501e685502c0d311ded";
-
-let currentUser = null;
-let postType = "Lost";
-
-const pages = [
-    homePage,
-    postPage,
-    aboutPage,
-    profilePage
-];
-
-function show(page, btn){
-    // Hide all pages
-    pages.forEach(p => p.classList.add("hiddenPage"));
-    // Show selected page
-    page.classList.remove("hiddenPage");
-    
-    // Reset all buttons to default gray color
-    document.querySelectorAll(".navBtn").forEach(b => {
-        b.classList.remove("nav-active", "text-indigo-600");
-        b.classList.add("text-gray-400");
-    });
-    
-    // Apply active color to the clicked button
-    if(btn) {
-        btn.classList.add("nav-active", "text-indigo-600");
-        btn.classList.remove("text-gray-400");
-    }
-}
-
-// Set initial state
-show(homePage, homeBtn);
-
-homeBtn.onclick = () => show(homePage, homeBtn);
-postBtn.onclick = () => show(postPage, postBtn);
-aboutBtn.onclick = () => show(aboutPage, aboutBtn);
-profileBtn.onclick = () => show(profilePage, profileBtn);
-
-onAuthStateChanged(auth, user => {
-    if(user){
-        currentUser = user;
-        authBox.classList.add("hidden");
-        appBox.classList.remove("hidden");
-        userEmail.innerText = user.email;
-        loadItems();
-        loadMyPosts();
-    }else{
-        authBox.classList.remove("hidden");
-        appBox.classList.add("hidden");
-    }
-});
-
-registerBtn.onclick = () => {
-    createUserWithEmailAndPassword(auth, email.value, password.value).catch(e => alert(e.message));
-};
-
-loginBtn.onclick = () => {
-    signInWithEmailAndPassword(auth, email.value, password.value).catch(e => alert(e.message));
-};
-
-logoutBtn.onclick = () => signOut(auth);
-
-lostBtn.onclick = () => {
-    postType = "Lost";
-    lostBtn.classList.add("bg-red-500","text-white");
-    foundBtn.classList.remove("bg-emerald-500","text-white");
-};
-
-foundBtn.onclick = () => {
-    postType = "Found";
-    foundBtn.classList.add("bg-emerald-500","text-white");
-    lostBtn.classList.remove("bg-red-500","text-white");
-};
-
-document.querySelectorAll(".catBtn").forEach(btn => {
-    btn.onclick = () => {
-        document.querySelectorAll(".catBtn").forEach(b => b.classList.remove("activeCat"));
-        btn.classList.add("activeCat");
-        category.value = btn.innerText.replace(/[^\w\s]/gi,'').trim();
+    const firebaseConfig = {
+        apiKey: "AIzaSyCaQVBo1ySGYme84ujN8v6dMZdGwRGefa8",
+        authDomain: "lost-and-found-a53a3.firebaseapp.com",
+        projectId: "lost-and-found-a53a3"
     };
-});
 
-image.onchange = e => {
-    const file = e.target.files[0];
-    if(file){
-        imagePreview.src = URL.createObjectURL(file);
-        imageLabel.classList.add("hidden");
-        imagePreviewContainer.classList.remove("hidden");
-    }
-};
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+    const IMGBB_KEY = "5a78877aa822d501e685502c0d311ded";
 
-removeImageBtn.onclick = () => {
-    image.value = "";
-    imageLabel.classList.remove("hidden");
-    imagePreviewContainer.classList.add("hidden");
-};
+    let currentUser = null;
+    let postType = "Lost";
 
-submitBtn.onclick = async () => {
-    if(!title.value || !contactPhone.value){
-        return alert("Please fill all required fields");
-    }
-    submitBtn.innerText = "Uploading...";
-    let imageUrl = "";
-    if(image.files[0]){
-        const form = new FormData();
-        form.append("image", image.files[0]);
-        const res = await fetch(`https://api.imgbb.com/1/upload?key=${IMGBB_KEY}`, { method:"POST", body:form });
-        const data = await res.json();
-        imageUrl = data.data.url;
-    }
-    await addDoc(collection(db, "items"), {
-        title:title.value,
-        desc:desc.value,
-        location:itemLocation.value,
-        category:category.value,
-        type:postType,
-        imageUrl,
-        phone:contactPhone.value,
-        user:currentUser.uid,
-        status:"Open",
-        timestamp:Date.now()
-    });
-    title.value = ""; desc.value = ""; itemLocation.value = ""; contactPhone.value = "";
-    removeImageBtn.click();
-    submitBtn.innerText = "Post Item";
-    loadItems();
-    loadMyPosts();
-    show(homePage, homeBtn);
-};
+    const pageIds = [homePage, postPage, aboutPage, profilePage];
+    const navBtns = [homeBtn, postBtn, aboutBtn, profileBtn];
 
-// SEARCH LOGIC
-searchBtn.onclick = () => loadItems(searchInput.value);
-searchInput.onkeyup = (e) => { if(e.key === "Enter") loadItems(searchInput.value); };
-
-filterType.onchange = () => loadItems();
-filterCat.onchange = () => loadItems();
-
-async function loadItems(keyword = ""){
-    items.innerHTML = `<div class="text-center py-10"><div class="animate-spin w-8 h-8 border-4 border-indigo-500 border-t-transparent rounded-full mx-auto"></div></div>`;
-    const snap = await getDocs(query(collection(db, "items"), orderBy("timestamp","desc")));
-    items.innerHTML = "";
-
-    snap.forEach(d => {
-        const it = d.data();
-        const matchesSearch = it.title.toLowerCase().includes(keyword.toLowerCase());
+    function show(targetPage, targetBtn) {
+        pageIds.forEach(p => p.classList.add("hiddenPage"));
+        targetPage.classList.remove("hiddenPage");
         
-        if(matchesSearch && (filterType.value === "All" || it.type === filterType.value) && (filterCat.value === "All" || it.category === filterCat.value)){
-            items.innerHTML += `
-            <div class="bg-white rounded-3xl overflow-hidden border border-slate-100 shadow-sm">
-                <div class="relative">
-                    ${it.imageUrl ? `<img src="${it.imageUrl}" class="w-full h-64 object-cover">` : `<div class="h-64 bg-slate-100 flex items-center justify-center"><i data-lucide="image" class="w-12 h-12 text-slate-300"></i></div>`}
-                    <div class="absolute top-4 left-4">
-                        <span class="px-3 py-1 rounded-full text-xs font-bold ${it.type === "Lost" ? "bg-red-500 text-white" : "bg-emerald-500 text-white"}">${it.type}</span>
-                    </div>
-                </div>
-                <div class="p-5">
-                    <div class="flex justify-between items-start mb-2">
-                        <h3 class="font-black text-lg">${it.title}</h3>
-                        <span class="text-xs px-2 py-1 rounded-full ${it.status === "Resolved" ? "bg-gray-200 text-gray-500" : "bg-indigo-100 text-indigo-600"}">${it.status}</span>
-                    </div>
-                    <p class="text-sm text-gray-500 mb-4">${it.desc || "No description"}</p>
-                    <div class="flex items-center justify-between pt-4 border-t">
-                        <div>
-                            <p class="text-xs text-gray-400">Location</p>
-                            <p class="font-semibold text-sm">${it.location || "Unknown"}</p>
-                        </div>
-                        <div class="text-indigo-600 text-sm font-bold">
-                            Contact: ${it.phone}
-                        </div>
-                    </div>
-                </div>
-            </div>`;
-        }
-    });
-    lucide.createIcons();
-}
-
-async function loadMyPosts(){
-    const snap = await getDocs(query(collection(db, "items"), orderBy("timestamp","desc")));
-    myPosts.innerHTML = "";
-    snap.forEach(d => {
-        const it = d.data();
-        if(it.user === currentUser.uid){
-            myPosts.innerHTML += `
-            <div class="bg-slate-50 p-4 rounded-2xl flex justify-between items-center">
-                <div>
-                    <p class="font-bold">${it.title}</p>
-                    <button onclick="toggleStatus('${d.id}','${it.status}')" class="text-xs bg-indigo-100 text-indigo-600 px-3 py-1 rounded-lg mt-2">${it.status === "Open" ? "Mark Resolved" : "Reopen"}</button>
-                </div>
-                <button onclick="deletePost('${d.id}')" class="text-red-500"><i data-lucide="trash-2" class="w-5 h-5"></i></button>
-            </div>`;
-        }
-    });
-    lucide.createIcons();
-}
-
-window.toggleStatus = async (id, cur) => {
-    await updateDoc(doc(db, "items", id), { status: cur === "Open" ? "Resolved" : "Open" });
-    loadItems(); loadMyPosts();
-};
-
-window.deletePost = async id => {
-    if(confirm("Delete report?")){
-        await deleteDoc(doc(db, "items", id));
-        loadItems(); loadMyPosts();
+        navBtns.forEach(b => {
+            b.classList.remove("nav-active", "text-indigo-600");
+            b.classList.add("text-gray-400");
+        });
+        targetBtn.classList.add("nav-active", "text-indigo-600");
+        targetBtn.classList.remove("text-gray-400");
+        
+        // Reset scroll position on page change
+        document.querySelector('.page-container').scrollTop = 0;
     }
-};
 
+    homeBtn.onclick = () => show(homePage, homeBtn);
+    postBtn.onclick = () => show(postPage, postBtn);
+    aboutBtn.onclick = () => show(aboutPage, aboutBtn);
+    profileBtn.onclick = () => show(profilePage, profileBtn);
+
+    onAuthStateChanged(auth, user => {
+        if(user){
+            currentUser = user;
+            authBox.classList.add("hidden");
+            appBox.classList.remove("hidden");
+            userEmail.innerText = user.email;
+            loadItems();
+            loadMyPosts();
+        } else {
+            authBox.classList.remove("hidden");
+            appBox.classList.add("hidden");
+        }
+    });
+
+    registerBtn.onclick = () => {
+        createUserWithEmailAndPassword(auth, email.value, password.value).catch(e => alert(e.message));
+    };
+
+    loginBtn.onclick = () => {
+        signInWithEmailAndPassword(auth, email.value, password.value).catch(e => alert(e.message));
+    };
+
+    logoutBtn.onclick = () => signOut(auth);
+
+    lostBtn.onclick = () => {
+        postType = "Lost";
+        lostBtn.className = "flex-1 bg-red-500 text-white p-3 rounded-xl font-bold";
+        foundBtn.className = "flex-1 text-gray-500 p-3 rounded-xl font-bold";
+    };
+
+    foundBtn.onclick = () => {
+        postType = "Found";
+        foundBtn.className = "flex-1 bg-emerald-500 text-white p-3 rounded-xl font-bold";
+        lostBtn.className = "flex-1 text-gray-500 p-3 rounded-xl font-bold";
+    };
+
+    document.querySelectorAll(".catBtn").forEach(btn => {
+        btn.onclick = () => {
+            document.querySelectorAll(".catBtn").forEach(b => b.classList.remove("activeCat"));
+            btn.classList.add("activeCat");
+            category.value = btn.innerText.replace(/[^\w\s]/gi,'').trim();
+        };
+    });
+
+    image.onchange = e => {
+        const file = e.target.files[0];
+        if(file){
+            imagePreview.src = URL.createObjectURL(file);
+            imageLabel.classList.add("hidden");
+            imagePreviewContainer.classList.remove("hidden");
+        }
+    };
+
+    removeImageBtn.onclick = () => {
+        image.value = "";
+        imageLabel.classList.remove("hidden");
+        imagePreviewContainer.classList.add("hidden");
+    };
+
+    submitBtn.onclick = async () => {
+        if(!title.value || !contactPhone.value){
+            return alert("Please fill all required fields");
+        }
+        submitBtn.disabled = true;
+        submitBtn.innerText = "Uploading...";
+        let imageUrl = "";
+        try {
+            if(image.files[0]){
+                const form = new FormData();
+                form.append("image", image.files[0]);
+                const res = await fetch(`https://api.imgbb.com/1/upload?key=${IMGBB_KEY}`, { method:"POST", body:form });
+                const data = await res.json();
+                imageUrl = data.data.url;
+            }
+            await addDoc(collection(db, "items"), {
+                title:title.value,
+                desc:desc.value,
+                location:itemLocation.value,
+                category:category.value,
+                type:postType,
+                imageUrl,
+                phone:contactPhone.value,
+                user:currentUser.uid,
+                status:"Open",
+                timestamp:Date.now()
+            });
+            // Reset fields
+            title.value = ""; desc.value = ""; itemLocation.value = ""; contactPhone.value = "";
+            removeImageBtn.click();
+            loadItems(); loadMyPosts();
+            show(homePage, homeBtn);
+        } catch(e) {
+            alert("Error posting item");
+        } finally {
+            submitBtn.disabled = false;
+            submitBtn.innerText = "Post Item";
+        }
+    };
+
+    searchBtn.onclick = () => loadItems(searchInput.value);
+    searchInput.onkeyup = (e) => { if(e.key === "Enter") loadItems(searchInput.value); };
+    filterType.onchange = () => loadItems();
+    filterCat.onchange = () => loadItems();
+
+    async function loadItems(keyword = ""){
+        items.innerHTML = `<div class="text-center py-10"><div class="animate-spin w-8 h-8 border-4 border-indigo-500 border-t-transparent rounded-full mx-auto"></div></div>`;
+        const snap = await getDocs(query(collection(db, "items"), orderBy("timestamp","desc")));
+        items.innerHTML = "";
+
+        snap.forEach(d => {
+            const it = d.data();
+            const matchesSearch = it.title.toLowerCase().includes(keyword.toLowerCase());
+            if(matchesSearch && (filterType.value === "All" || it.type === filterType.value) && (filterCat.value === "All" || it.category === filterCat.value)){
+                items.innerHTML += `
+                <div class="bg-white rounded-3xl overflow-hidden border border-slate-100 shadow-sm">
+                    <div class="relative">
+                        ${it.imageUrl ? `<img src="${it.imageUrl}" class="w-full h-64 object-cover">` : `<div class="h-64 bg-slate-100 flex items-center justify-center"><i data-lucide="image" class="w-12 h-12 text-slate-300"></i></div>`}
+                        <div class="absolute top-4 left-4">
+                            <span class="px-3 py-1 rounded-full text-xs font-bold ${it.type === "Lost" ? "bg-red-500 text-white" : "bg-emerald-500 text-white"}">${it.type}</span>
+                        </div>
+                    </div>
+                    <div class="p-5">
+                        <div class="flex justify-between items-start mb-2">
+                            <h3 class="font-black text-lg">${it.title}</h3>
+                            <span class="text-xs px-2 py-1 rounded-full ${it.status === "Resolved" ? "bg-gray-200 text-gray-500" : "bg-indigo-100 text-indigo-600"}">${it.status}</span>
+                        </div>
+                        <p class="text-sm text-gray-500 mb-4">${it.desc || "No description"}</p>
+                        <div class="flex items-center justify-between pt-4 border-t">
+                            <div>
+                                <p class="text-xs text-gray-400">Location</p>
+                                <p class="font-semibold text-sm">${it.location || "Unknown"}</p>
+                            </div>
+                            <div class="text-indigo-600 text-sm font-bold">Call: ${it.phone}</div>
+                        </div>
+                    </div>
+                </div>`;
+            }
+        });
+        lucide.createIcons();
+    }
+
+    async function loadMyPosts(){
+        const snap = await getDocs(query(collection(db, "items"), orderBy("timestamp","desc")));
+        myPosts.innerHTML = "";
+        snap.forEach(d => {
+            const it = d.data();
+            if(it.user === currentUser.uid){
+                myPosts.innerHTML += `
+                <div class="bg-slate-50 p-4 rounded-2xl flex justify-between items-center">
+                    <div>
+                        <p class="font-bold">${it.title}</p>
+                        <button onclick="window.toggleStatus('${d.id}','${it.status}')" class="text-xs bg-indigo-100 text-indigo-600 px-3 py-1 rounded-lg mt-2">${it.status === "Open" ? "Mark Resolved" : "Reopen"}</button>
+                    </div>
+                    <button onclick="window.deletePost('${d.id}')" class="text-red-500 p-2"><i data-lucide="trash-2" class="w-5 h-5"></i></button>
+                </div>`;
+            }
+        });
+        lucide.createIcons();
+    }
+
+    window.toggleStatus = async (id, cur) => {
+        await updateDoc(doc(db, "items", id), { status: cur === "Open" ? "Resolved" : "Open" });
+        loadItems(); loadMyPosts();
+    };
+
+    window.deletePost = async id => {
+        if(confirm("Delete report?")){
+            await deleteDoc(doc(db, "items", id));
+            loadItems(); loadMyPosts();
+        }
+    };
 </script>
-
 </body>
 </html>
