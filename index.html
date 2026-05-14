@@ -6,8 +6,9 @@
     <title>FoundIt App</title>
     <meta name="theme-color" content="#4f46e5">
     <meta name="apple-mobile-web-app-capable" content="yes">
+    <!-- Using a more reliable CDN for mobile -->
+    <script src="https://cdn.jsdelivr.net/npm/lucide@0.344.0/dist/umd/lucide.min.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://unpkg.com/lucide@latest"></script>
 
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -15,8 +16,9 @@
         body {
             background: #cbd5e1;
             font-family: system-ui;
-            height: 100vh;
-            height: 100svh; 
+            /* Prevents the background from "bouncing" on mobile */
+            position: fixed;
+            inset: 0;
             overflow: hidden;
             display: flex;
             justify-content: center;
@@ -25,18 +27,18 @@
         .app {
             width: 100%;
             max-width: 430px;
-            height: 100%;
+            height: 100dvh; /* Dynamic viewport height for mobile */
             background: white;
             display: flex;
-            flex-direction: column; /* Crucial for keeping nav at bottom */
+            flex-direction: column;
             box-shadow: 0 0 40px rgba(0,0,0,.15);
             position: relative;
         }
 
-        /* The container for all scrollable content */
         .page-viewport {
             flex: 1;
             overflow-y: auto;
+            height: 0; /* Forces flex child to respect container */
             -webkit-overflow-scrolling: touch;
         }
 
@@ -57,12 +59,12 @@
         .nav-active { color: #4f46e5 !important; }
         .hiddenPage { display: none; }
 
-        /* Modified Navigation for better mobile visibility */
         nav {
             background: white;
             border-top: 1px solid #e2e8f0;
-            padding-bottom: env(safe-area-inset-bottom);
-            flex-shrink: 0; /* Prevents nav from squishing */
+            /* Fix for modern mobile notches and home bars */
+            padding-bottom: calc(env(safe-area-inset-bottom) + 8px);
+            flex-shrink: 0;
             z-index: 50;
         }
     </style>
@@ -101,7 +103,7 @@
         </div>
     </div>
 
-    <!-- VIEWPORT FOR PAGES -->
+    <!-- VIEWPORT -->
     <div class="page-viewport">
         <!-- HOME -->
         <div id="homePage" class="page">
@@ -144,14 +146,13 @@
             <input id="title" placeholder="Item title" class="input mb-4">
             <textarea id="desc" placeholder="Description" class="input h-28 resize-none mb-4"></textarea>
             
-            <!-- Category Grid with explicit data-values to preserve text logic -->
             <div id="categoryGrid" class="grid grid-cols-2 gap-2 mb-5">
-                <button class="catBtn activeCat" data-val="Electronics">💻 Electronics</button>
-                <button class="catBtn" data-val="Wallets">👛 Wallets</button>
-                <button class="catBtn" data-val="Documents">📄 Documents</button>
-                <button class="catBtn" data-val="Accessories">⌚ Accessories</button>
-                <button class="catBtn" data-val="Keys">🔑 Keys</button>
-                <button class="catBtn" data-val="Bags">👜 Bags</button>
+                <button class="catBtn activeCat" data-val="Electronics"><span>💻</span> Electronics</button>
+                <button class="catBtn" data-val="Wallets"><span>👛</span> Wallets</button>
+                <button class="catBtn" data-val="Documents"><span>📄</span> Documents</button>
+                <button class="catBtn" data-val="Accessories"><span>⌚</span> Accessories</button>
+                <button class="catBtn" data-val="Keys"><span>🔑</span> Keys</button>
+                <button class="catBtn" data-val="Bags"><span>👜</span> Bags</button>
             </div>
             <input type="hidden" id="category" value="Electronics">
             
@@ -212,8 +213,6 @@
 </div>
 
 <script type="module">
-    lucide.createIcons();
-
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
     import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
     import { getFirestore, collection, addDoc, getDocs, deleteDoc, updateDoc, doc, query, orderBy } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
@@ -252,6 +251,9 @@
         btn.classList.remove("text-gray-400");
         
         document.querySelector('.page-viewport').scrollTop = 0;
+        
+        // Manual Fix: Re-render icons whenever tab changes
+        if(window.lucide) lucide.createIcons();
     }
 
     homeBtn.onclick = () => show('home', homeBtn);
@@ -271,6 +273,7 @@
             authBox.classList.remove("hidden");
             appBox.classList.add("hidden");
         }
+        if(window.lucide) lucide.createIcons();
     });
 
     registerBtn.onclick = () => {
@@ -295,12 +298,10 @@
         lostBtn.classList.remove("bg-red-500","text-white");
     };
 
-    // Corrected Category Selection logic
     document.querySelectorAll(".catBtn").forEach(btn => {
         btn.onclick = () => {
             document.querySelectorAll(".catBtn").forEach(b => b.classList.remove("activeCat"));
             btn.classList.add("activeCat");
-            // Uses data-val instead of parsing text with emojis
             category.value = btn.getAttribute('data-val');
         };
     });
@@ -329,9 +330,11 @@
         if(image.files[0]){
             const form = new FormData();
             form.append("image", image.files[0]);
-            const res = await fetch(`https://api.imgbb.com/1/upload?key=${IMGBB_KEY}`, { method:"POST", body:form });
-            const data = await res.json();
-            imageUrl = data.data.url;
+            try {
+                const res = await fetch(`https://api.imgbb.com/1/upload?key=${IMGBB_KEY}`, { method:"POST", body:form });
+                const data = await res.json();
+                imageUrl = data.data.url;
+            } catch (e) { console.error("Image upload failed"); }
         }
         await addDoc(collection(db, "items"), {
             title:title.value,
@@ -342,7 +345,7 @@
             imageUrl,
             phone:contactPhone.value,
             user:currentUser.uid,
-            status:"Pending", // Changed from Open to Pending
+            status:"Pending",
             timestamp:Date.now()
         });
         title.value = ""; desc.value = ""; itemLocation.value = ""; contactPhone.value = "";
@@ -396,7 +399,7 @@
                 </div>`;
             }
         });
-        lucide.createIcons();
+        if(window.lucide) lucide.createIcons();
     }
 
     async function loadMyPosts(){
@@ -415,11 +418,10 @@
                 </div>`;
             }
         });
-        lucide.createIcons();
+        if(window.lucide) lucide.createIcons();
     }
 
     window.toggleStatus = async (id, cur) => {
-        // Updated toggle logic for Pending
         await updateDoc(doc(db, "items", id), { status: cur === "Pending" ? "Resolved" : "Pending" });
         loadItems(); loadMyPosts();
     };
@@ -430,6 +432,9 @@
             loadItems(); loadMyPosts();
         }
     };
+    
+    // Initial load
+    if(window.lucide) lucide.createIcons();
 </script>
 
 </body>
