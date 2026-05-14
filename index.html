@@ -4,26 +4,23 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>FoundIt App</title>
-    <!-- Using a highly stable CDN -->
     <script src="https://unpkg.com/lucide@latest"></script>
     <script src="https://cdn.tailwindcss.com"></script>
 
     <style>
-        /* RESET & LOCK VIEWPORT */
         * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
 
         html, body {
             height: 100%;
-            height: -webkit-fill-available; /* Fix for Safari/Chrome mobile bars */
+            height: -webkit-fill-available;
             width: 100vw;
-            overflow: hidden; /* Prevents the whole page from sliding */
+            overflow: hidden;
             background: #cbd5e1;
-            position: fixed; /* Absolute lock for mobile */
+            position: fixed; 
         }
 
         body { font-family: system-ui, sans-serif; display: flex; justify-content: center; }
 
-        /* THE GRID CONTAINER: Forces Header (top), Content (middle), Nav (bottom) */
         .app {
             width: 100%;
             max-width: 430px;
@@ -31,11 +28,10 @@
             height: -webkit-fill-available;
             background: white;
             display: grid;
-            grid-template-rows: auto 1fr auto; /* HEADER | CONTENT | NAV */
+            grid-template-rows: auto 1fr auto;
             box-shadow: 0 0 40px rgba(0,0,0,0.1);
         }
 
-        /* HEADER */
         header {
             background: white;
             border-bottom: 1px solid #f1f5f9;
@@ -43,7 +39,6 @@
             z-index: 10;
         }
 
-        /* SCROLLABLE AREA */
         main {
             overflow-y: auto;
             -webkit-overflow-scrolling: touch;
@@ -58,12 +53,10 @@
 
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
-        /* BOTTOM NAVIGATION - FIXED HEIGHT */
         nav {
             background: white;
             border-top: 1px solid #e2e8f0;
-            padding-bottom: env(safe-area-inset-bottom); /* Fix for iPhone home bar */
-            height: auto;
+            padding-bottom: env(safe-area-inset-bottom);
             min-height: 60px;
             z-index: 100;
         }
@@ -89,18 +82,16 @@
 
         .nav-active { color: #4f46e5 !important; }
 
-        /* --- MICRO-SCREEN OPTIMIZATION (For very short phones) --- */
         @media (max-height: 600px) {
             header { padding: 6px 12px; }
             header h1 { font-size: 1.1rem !important; }
             header p { display: none; }
             .nav-grid { height: 50px; }
-            .navBtn span { display: none; } /* Hide text to save vertical space */
+            .navBtn span { display: none; }
             .navBtn i { width: 22px; height: 22px; }
             .page { padding: 10px; }
         }
 
-        /* UTILITIES */
         .hiddenPage { display: none !important; }
         .input { width: 100%; background: #f8fafc; border: 1px solid #e2e8f0; padding: 12px; border-radius: 12px; outline: none; font-size: 14px; }
         .catBtn { border: 1px solid #e5e7eb; padding: 10px; border-radius: 12px; background: white; font-size: 12px; font-weight: 700; }
@@ -109,7 +100,6 @@
 </head>
 <body>
 
-<!-- AUTH OVERLAY -->
 <div id="authBox" class="fixed inset-0 bg-slate-200 z-[1000] flex items-center justify-center p-6">
     <div class="bg-white p-8 rounded-3xl shadow-2xl w-full max-w-sm text-center">
         <h1 class="text-3xl font-black text-indigo-600 mb-6">FoundIt</h1>
@@ -120,9 +110,7 @@
     </div>
 </div>
 
-<!-- THE APP -->
 <div id="appBox" class="app hiddenPage">
-    <!-- HEADER -->
     <header>
         <div class="flex justify-between items-center">
             <div>
@@ -136,7 +124,6 @@
         </div>
     </header>
 
-    <!-- MAIN SCROLL CONTENT -->
     <main class="page-viewport">
         <!-- HOME PAGE -->
         <section id="homePage" class="page">
@@ -160,24 +147,20 @@
         <!-- POST PAGE -->
         <section id="postPage" class="page hiddenPage">
             <div class="flex bg-slate-100 p-1 rounded-xl gap-1 mb-4">
-                <button id="lostBtn" class="flex-1 bg-red-500 text-white p-3 rounded-lg font-bold text-xs transition-all">Lost</button>
-                <button id="foundBtn" class="flex-1 text-gray-500 p-3 rounded-lg font-bold text-xs transition-all">Found</button>
+                <button id="lostBtn" class="flex-1 bg-red-500 text-white p-3 rounded-lg font-bold text-xs">Lost</button>
+                <button id="foundBtn" class="flex-1 text-gray-500 p-3 rounded-lg font-bold text-xs">Found</button>
             </div>
-            
             <label id="imageLabel" class="border-2 border-dashed border-slate-200 bg-slate-50 rounded-2xl h-32 flex flex-col justify-center items-center mb-4 cursor-pointer">
                 <i data-lucide="camera" class="w-6 h-6 text-gray-300 mb-1"></i>
                 <span class="text-[10px] font-bold text-gray-400">ADD PHOTO</span>
                 <input type="file" id="image" class="hidden" accept="image/*">
             </label>
-
             <div id="imagePreviewContainer" class="hidden relative mb-4">
                 <img id="imagePreview" class="w-full h-40 object-cover rounded-2xl shadow-md">
                 <button id="removeImageBtn" class="absolute top-2 right-2 bg-red-500 text-white p-1.5 rounded-full"><i data-lucide="x" class="w-4 h-4"></i></button>
             </div>
-
             <input id="title" placeholder="What did you lose/find?" class="input mb-3">
             <textarea id="desc" placeholder="Details (Color, Brand, etc.)" class="input h-20 mb-3"></textarea>
-            
             <div id="categoryGrid" class="grid grid-cols-2 gap-2 mb-4">
                 <button class="catBtn activeCat" data-val="Electronics">💻 Electronics</button>
                 <button class="catBtn" data-val="Wallets">👛 Wallets</button>
@@ -185,20 +168,50 @@
                 <button class="catBtn" data-val="Keys">🔑 Keys</button>
             </div>
             <input type="hidden" id="category" value="Electronics">
-            
             <input id="itemLocation" placeholder="Where (Area, Building)?" class="input mb-3">
             <input id="contactPhone" placeholder="Your Phone Number" class="input mb-6">
             <button id="submitBtn" class="w-full bg-indigo-600 text-white p-4 rounded-xl font-bold shadow-lg">Submit Post</button>
         </section>
 
-        <!-- ABOUT PAGE -->
+        <!-- UPDATED ABOUT PAGE -->
         <section id="aboutPage" class="page hiddenPage">
-            <div class="text-center py-10">
-                <div class="bg-indigo-50 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <i data-lucide="info" class="w-8 h-8 text-indigo-600"></i>
+            <div class="text-center py-6 px-4">
+                <div class="bg-indigo-50 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-6">
+                    <i data-lucide="heart" class="w-8 h-8 text-indigo-600"></i>
                 </div>
-                <h2 class="text-2xl font-black mb-2">About FoundIt</h2>
-                <p class="text-sm text-gray-500 px-6">We help reconnect people with their lost belongings through community power.</p>
+                
+                <h2 class="text-3xl font-black text-slate-800 mb-4">FoundIt</h2>
+                
+                <div class="space-y-4 text-slate-600 leading-relaxed text-sm text-justify mb-8">
+                    <p>
+                        Hello everyone! We have developed <strong>FoundIt</strong>, a community-driven application designed to help people reconnect with their lost belongings quickly and efficiently.
+                    </p>
+                    <p>
+                        Our platform simplifies the process of reporting lost and found items, creating a reliable network where honesty meets technology. Whether it's a set of keys, a wallet, or electronics, FoundIt ensures that help is just a post away.
+                    </p>
+                </div>
+
+                <div class="border-t border-slate-100 pt-6">
+                    <p class="text-xs font-black text-indigo-600 tracking-widest uppercase mb-4">Developed By</p>
+                    <div class="space-y-2 text-slate-800">
+                        <div class="flex justify-between items-center bg-slate-50 p-3 rounded-xl border border-slate-100">
+                            <span class="font-bold">KUNJAL JAWALKAR</span>
+                            <span class="text-[10px] bg-white px-2 py-1 rounded-md shadow-sm text-slate-400">Roll No: 2510004</span>
+                        </div>
+                        <div class="flex justify-between items-center bg-slate-50 p-3 rounded-xl border border-slate-100">
+                            <span class="font-bold">PARAS MOHITE</span>
+                            <span class="text-[10px] bg-white px-2 py-1 rounded-md shadow-sm text-slate-400">Roll No: 2510001</span>
+                        </div>
+                        <div class="flex justify-between items-center bg-slate-50 p-3 rounded-xl border border-slate-100">
+                            <span class="font-bold">VAIBHAVI VAKAREKAR</span>
+                            <span class="text-[10px] bg-white px-2 py-1 rounded-md shadow-sm text-slate-400">Roll No: 2510020</span>
+                        </div>
+                        <div class="flex justify-between items-center bg-slate-50 p-3 rounded-xl border border-slate-100">
+                            <span class="font-bold">SNEHA WAVHAL</span>
+                            <span class="text-[10px] bg-white px-2 py-1 rounded-md shadow-sm text-slate-400">Roll No: 2510003</span>
+                        </div>
+                    </div>
+                </div>
             </div>
         </section>
 
@@ -214,25 +227,12 @@
         </section>
     </main>
 
-    <!-- BOTTOM NAV -->
     <nav>
         <div class="nav-grid">
-            <button id="homeBtn" class="navBtn nav-active">
-                <i data-lucide="home"></i>
-                <span>Home</span>
-            </button>
-            <button id="postBtn" class="navBtn">
-                <i data-lucide="plus-square"></i>
-                <span>Post</span>
-            </button>
-            <button id="aboutBtn" class="navBtn">
-                <i data-lucide="help-circle"></i>
-                <span>About</span>
-            </button>
-            <button id="profileBtn" class="navBtn">
-                <i data-lucide="user"></i>
-                <span>Profile</span>
-            </button>
+            <button id="homeBtn" class="navBtn nav-active"><i data-lucide="home"></i><span>Home</span></button>
+            <button id="postBtn" class="navBtn"><i data-lucide="plus-square"></i><span>Post</span></button>
+            <button id="aboutBtn" class="navBtn"><i data-lucide="help-circle"></i><span>About</span></button>
+            <button id="profileBtn" class="navBtn"><i data-lucide="user"></i><span>Profile</span></button>
         </div>
     </nav>
 </div>
@@ -262,10 +262,8 @@
     function show(pageKey) {
         Object.values(pages).forEach(p => p.classList.add("hiddenPage"));
         Object.values(btns).forEach(b => b.classList.remove("nav-active"));
-        
         pages[pageKey].classList.remove("hiddenPage");
         btns[pageKey].classList.add("nav-active");
-        
         document.querySelector('main').scrollTop = 0;
         if(window.lucide) lucide.createIcons();
     }
@@ -294,16 +292,8 @@
     registerBtn.onclick = () => createUserWithEmailAndPassword(auth, email.value, password.value).catch(e => alert(e.message));
     logoutBtn.onclick = () => signOut(auth);
 
-    lostBtn.onclick = () => { 
-        postType = "Lost"; 
-        lostBtn.className = "flex-1 bg-red-500 text-white p-3 rounded-lg font-bold text-xs"; 
-        foundBtn.className = "flex-1 text-gray-500 p-3 rounded-lg font-bold text-xs"; 
-    };
-    foundBtn.onclick = () => { 
-        postType = "Found"; 
-        foundBtn.className = "flex-1 bg-emerald-500 text-white p-3 rounded-lg font-bold text-xs"; 
-        lostBtn.className = "flex-1 text-gray-500 p-3 rounded-lg font-bold text-xs"; 
-    };
+    lostBtn.onclick = () => { postType = "Lost"; lostBtn.className = "flex-1 bg-red-500 text-white p-3 rounded-lg font-bold text-xs"; foundBtn.className = "flex-1 text-gray-500 p-3 rounded-lg font-bold text-xs"; };
+    foundBtn.onclick = () => { postType = "Found"; foundBtn.className = "flex-1 bg-emerald-500 text-white p-3 rounded-lg font-bold text-xs"; lostBtn.className = "flex-1 text-gray-500 p-3 rounded-lg font-bold text-xs"; };
 
     document.querySelectorAll(".catBtn").forEach(btn => {
         btn.onclick = () => {
@@ -355,7 +345,7 @@
             const it = d.data();
             if(it.title.toLowerCase().includes(keyword.toLowerCase()) && (filterType.value === "All" || it.type === filterType.value) && (filterCat.value === "All" || it.category === filterCat.value)){
                 items.innerHTML += `
-                <div class="bg-white rounded-2xl overflow-hidden border border-slate-100 shadow-sm transition-transform active:scale-[0.98]">
+                <div class="bg-white rounded-2xl overflow-hidden border border-slate-100 shadow-sm">
                     ${it.imageUrl ? `<img src="${it.imageUrl}" class="w-full h-44 object-cover">` : ''}
                     <div class="p-4">
                         <div class="flex justify-between items-start mb-1">
