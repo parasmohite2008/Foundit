@@ -100,6 +100,7 @@
 </head>
 <body>
 
+<!-- AUTH OVERLAY -->
 <div id="authBox" class="fixed inset-0 bg-slate-200 z-[1000] flex items-center justify-center p-6">
     <div class="bg-white p-8 rounded-3xl shadow-2xl w-full max-w-sm text-center">
         <h1 class="text-3xl font-black text-indigo-600 mb-6">FoundIt</h1>
@@ -150,17 +151,21 @@
                 <button id="lostBtn" class="flex-1 bg-red-500 text-white p-3 rounded-lg font-bold text-xs">Lost</button>
                 <button id="foundBtn" class="flex-1 text-gray-500 p-3 rounded-lg font-bold text-xs">Found</button>
             </div>
+            
             <label id="imageLabel" class="border-2 border-dashed border-slate-200 bg-slate-50 rounded-2xl h-32 flex flex-col justify-center items-center mb-4 cursor-pointer">
                 <i data-lucide="camera" class="w-6 h-6 text-gray-300 mb-1"></i>
                 <span class="text-[10px] font-bold text-gray-400">ADD PHOTO</span>
                 <input type="file" id="image" class="hidden" accept="image/*">
             </label>
+
             <div id="imagePreviewContainer" class="hidden relative mb-4">
                 <img id="imagePreview" class="w-full h-40 object-cover rounded-2xl shadow-md">
                 <button id="removeImageBtn" class="absolute top-2 right-2 bg-red-500 text-white p-1.5 rounded-full"><i data-lucide="x" class="w-4 h-4"></i></button>
             </div>
+
             <input id="title" placeholder="What did you lose/find?" class="input mb-3">
             <textarea id="desc" placeholder="Details (Color, Brand, etc.)" class="input h-20 mb-3"></textarea>
+            
             <div id="categoryGrid" class="grid grid-cols-2 gap-2 mb-4">
                 <button class="catBtn activeCat" data-val="Electronics">💻 Electronics</button>
                 <button class="catBtn" data-val="Wallets">👛 Wallets</button>
@@ -168,12 +173,13 @@
                 <button class="catBtn" data-val="Keys">🔑 Keys</button>
             </div>
             <input type="hidden" id="category" value="Electronics">
+            
             <input id="itemLocation" placeholder="Where (Area, Building)?" class="input mb-3">
             <input id="contactPhone" placeholder="Your Phone Number" class="input mb-6">
             <button id="submitBtn" class="w-full bg-indigo-600 text-white p-4 rounded-xl font-bold shadow-lg">Submit Post</button>
         </section>
 
-        <!-- UPDATED ABOUT PAGE -->
+        <!-- ABOUT PAGE -->
         <section id="aboutPage" class="page hiddenPage">
             <div class="text-center py-6 px-4">
                 <div class="bg-indigo-50 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-6">
@@ -292,8 +298,16 @@
     registerBtn.onclick = () => createUserWithEmailAndPassword(auth, email.value, password.value).catch(e => alert(e.message));
     logoutBtn.onclick = () => signOut(auth);
 
-    lostBtn.onclick = () => { postType = "Lost"; lostBtn.className = "flex-1 bg-red-500 text-white p-3 rounded-lg font-bold text-xs"; foundBtn.className = "flex-1 text-gray-500 p-3 rounded-lg font-bold text-xs"; };
-    foundBtn.onclick = () => { postType = "Found"; foundBtn.className = "flex-1 bg-emerald-500 text-white p-3 rounded-lg font-bold text-xs"; lostBtn.className = "flex-1 text-gray-500 p-3 rounded-lg font-bold text-xs"; };
+    lostBtn.onclick = () => { 
+        postType = "Lost"; 
+        lostBtn.className = "flex-1 bg-red-500 text-white p-3 rounded-lg font-bold text-xs"; 
+        foundBtn.className = "flex-1 text-gray-500 p-3 rounded-lg font-bold text-xs"; 
+    };
+    foundBtn.onclick = () => { 
+        postType = "Found"; 
+        foundBtn.className = "flex-1 bg-emerald-500 text-white p-3 rounded-lg font-bold text-xs"; 
+        lostBtn.className = "flex-1 text-gray-500 p-3 rounded-lg font-bold text-xs"; 
+    };
 
     document.querySelectorAll(".catBtn").forEach(btn => {
         btn.onclick = () => {
@@ -345,17 +359,25 @@
             const it = d.data();
             if(it.title.toLowerCase().includes(keyword.toLowerCase()) && (filterType.value === "All" || it.type === filterType.value) && (filterCat.value === "All" || it.category === filterCat.value)){
                 items.innerHTML += `
-                <div class="bg-white rounded-2xl overflow-hidden border border-slate-100 shadow-sm">
+                <div class="bg-white rounded-2xl overflow-hidden border border-slate-100 shadow-sm relative">
+                    <!-- TAGS ON TOP OF IMAGE -->
+                    <div class="absolute top-3 left-3 z-20">
+                        <span class="text-[9px] font-black px-2 py-1 shadow-md rounded-full uppercase ${it.type === 'Lost' ? 'bg-red-500 text-white' : 'bg-emerald-500 text-white'}">${it.type}</span>
+                    </div>
+                    
                     ${it.imageUrl ? `<img src="${it.imageUrl}" class="w-full h-44 object-cover">` : ''}
+                    
                     <div class="p-4">
-                        <div class="flex justify-between items-start mb-1">
+                        <div class="flex justify-between items-center mb-1">
                             <h3 class="font-bold text-slate-800 leading-tight">${it.title}</h3>
-                            <span class="text-[9px] font-black px-2 py-0.5 rounded-full uppercase ${it.type === 'Lost' ? 'bg-red-100 text-red-600' : 'bg-emerald-100 text-emerald-600'}">${it.type}</span>
+                            <!-- PENDING STATUS SHOWING HERE -->
+                            <span class="text-[9px] font-bold px-2 py-0.5 rounded-full ${it.status === 'Resolved' ? 'bg-slate-100 text-slate-400' : 'bg-orange-100 text-orange-600'}">${it.status}</span>
                         </div>
                         <p class="text-[11px] text-gray-500 mb-3 line-clamp-2">${it.desc || 'No description provided.'}</p>
                         <div class="flex justify-between items-center pt-3 border-t border-slate-50 text-[10px] font-bold">
                             <span class="text-slate-400 flex items-center gap-1"><i data-lucide="map-pin" class="w-3 h-3"></i>${it.location || 'Unknown'}</span>
-                            <a href="tel:${it.phone}" class="text-indigo-600 flex items-center gap-1 bg-indigo-50 px-2 py-1 rounded-lg"><i data-lucide="phone" class="w-3 h-3"></i>Call</a>
+                            <!-- CHANGED CONTACT TO TEXT -->
+                            <a href="tel:${it.phone}" class="text-indigo-600 flex items-center gap-1 bg-indigo-50 px-2 py-1 rounded-lg"><i data-lucide="phone" class="w-3 h-3"></i>Text: ${it.phone}</a>
                         </div>
                     </div>
                 </div>`;
