@@ -2,211 +2,236 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>FoundIt App</title>
-    <meta name="theme-color" content="#4f46e5">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <!-- Using a more reliable CDN for mobile -->
-    <script src="https://cdn.jsdelivr.net/npm/lucide@0.344.0/dist/umd/lucide.min.js"></script>
+    <!-- Using a highly stable CDN -->
+    <script src="https://unpkg.com/lucide@latest"></script>
     <script src="https://cdn.tailwindcss.com"></script>
 
     <style>
-        * { box-sizing: border-box; margin: 0; padding: 0; }
+        /* RESET & LOCK VIEWPORT */
+        * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
 
-        body {
+        html, body {
+            height: 100%;
+            height: -webkit-fill-available; /* Fix for Safari/Chrome mobile bars */
+            width: 100vw;
+            overflow: hidden; /* Prevents the whole page from sliding */
             background: #cbd5e1;
-            font-family: system-ui;
-            /* Prevents the background from "bouncing" on mobile */
-            position: fixed;
-            inset: 0;
-            overflow: hidden;
-            display: flex;
-            justify-content: center;
+            position: fixed; /* Absolute lock for mobile */
         }
 
+        body { font-family: system-ui, sans-serif; display: flex; justify-content: center; }
+
+        /* THE GRID CONTAINER: Forces Header (top), Content (middle), Nav (bottom) */
         .app {
             width: 100%;
             max-width: 430px;
-            height: 100dvh; /* Dynamic viewport height for mobile */
+            height: 100%;
+            height: -webkit-fill-available;
             background: white;
-            display: flex;
-            flex-direction: column;
-            box-shadow: 0 0 40px rgba(0,0,0,.15);
-            position: relative;
+            display: grid;
+            grid-template-rows: auto 1fr auto; /* HEADER | CONTENT | NAV */
+            box-shadow: 0 0 40px rgba(0,0,0,0.1);
         }
 
-        .page-viewport {
-            flex: 1;
+        /* HEADER */
+        header {
+            background: white;
+            border-bottom: 1px solid #f1f5f9;
+            padding: 12px 16px;
+            z-index: 10;
+        }
+
+        /* SCROLLABLE AREA */
+        main {
             overflow-y: auto;
-            height: 0; /* Forces flex child to respect container */
             -webkit-overflow-scrolling: touch;
+            background: #ffffff;
         }
 
         .page {
             padding: 16px;
-            animation: slide .25s ease;
+            display: block;
+            animation: fadeIn 0.2s ease;
         }
 
-        @keyframes slide {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
-        .input { width: 100%; background: #f8fafc; border: 1px solid #e2e8f0; padding: 15px; border-radius: 18px; outline: none; }
-        .input:focus { border-color: #4f46e5; }
-        .catBtn { border: 1px solid #e5e7eb; padding: 12px; border-radius: 16px; background: white; font-size: 13px; font-weight: 700; transition: all 0.2s; }
-        .activeCat { background: #4f46e5; color: white; border-color: #4f46e5; }
-        .nav-active { color: #4f46e5 !important; }
-        .hiddenPage { display: none; }
-
+        /* BOTTOM NAVIGATION - FIXED HEIGHT */
         nav {
             background: white;
             border-top: 1px solid #e2e8f0;
-            /* Fix for modern mobile notches and home bars */
-            padding-bottom: calc(env(safe-area-inset-bottom) + 8px);
-            flex-shrink: 0;
-            z-index: 50;
+            padding-bottom: env(safe-area-inset-bottom); /* Fix for iPhone home bar */
+            height: auto;
+            min-height: 60px;
+            z-index: 100;
         }
+
+        .nav-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            height: 60px;
+        }
+
+        .navBtn {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: #94a3b8;
+            font-size: 10px;
+            font-weight: 600;
+            border: none;
+            background: none;
+            gap: 4px;
+        }
+
+        .nav-active { color: #4f46e5 !important; }
+
+        /* --- MICRO-SCREEN OPTIMIZATION (For very short phones) --- */
+        @media (max-height: 600px) {
+            header { padding: 6px 12px; }
+            header h1 { font-size: 1.1rem !important; }
+            header p { display: none; }
+            .nav-grid { height: 50px; }
+            .navBtn span { display: none; } /* Hide text to save vertical space */
+            .navBtn i { width: 22px; height: 22px; }
+            .page { padding: 10px; }
+        }
+
+        /* UTILITIES */
+        .hiddenPage { display: none !important; }
+        .input { width: 100%; background: #f8fafc; border: 1px solid #e2e8f0; padding: 12px; border-radius: 12px; outline: none; font-size: 14px; }
+        .catBtn { border: 1px solid #e5e7eb; padding: 10px; border-radius: 12px; background: white; font-size: 12px; font-weight: 700; }
+        .activeCat { background: #4f46e5; color: white; border-color: #4f46e5; }
     </style>
 </head>
 <body>
 
-<!-- AUTH -->
-<div id="authBox" class="fixed inset-0 bg-slate-300 z-[1000] flex items-center justify-center p-5">
-    <div class="bg-white p-8 rounded-3xl shadow-xl w-full max-w-sm">
-        <div class="flex justify-center mb-5">
-            <div class="bg-indigo-100 p-4 rounded-3xl">
-                <i data-lucide="search" class="w-10 h-10 text-indigo-600"></i>
-            </div>
-        </div>
-        <h1 class="text-3xl font-black text-center mb-8">FoundIt</h1>
-        <input id="email" type="email" placeholder="Email" class="input mb-4">
-        <input id="password" type="password" placeholder="Password" class="input mb-5">
-        <button id="loginBtn" class="w-full bg-indigo-600 text-white p-4 rounded-2xl font-bold mb-3">Login</button>
-        <button id="registerBtn" class="w-full border p-4 rounded-2xl font-bold">Create Account</button>
+<!-- AUTH OVERLAY -->
+<div id="authBox" class="fixed inset-0 bg-slate-200 z-[1000] flex items-center justify-center p-6">
+    <div class="bg-white p-8 rounded-3xl shadow-2xl w-full max-w-sm text-center">
+        <h1 class="text-3xl font-black text-indigo-600 mb-6">FoundIt</h1>
+        <input id="email" type="email" placeholder="Email" class="input mb-3">
+        <input id="password" type="password" placeholder="Password" class="input mb-4">
+        <button id="loginBtn" class="w-full bg-indigo-600 text-white p-4 rounded-xl font-bold mb-3 shadow-lg">Login</button>
+        <button id="registerBtn" class="w-full text-gray-500 font-bold text-sm">Create Account</button>
     </div>
 </div>
 
-<!-- APP -->
-<div id="appBox" class="app hidden">
+<!-- THE APP -->
+<div id="appBox" class="app hiddenPage">
     <!-- HEADER -->
-    <div class="bg-white border-b px-5 pt-6 pb-4 flex items-center justify-between shrink-0">
-        <div>
-            <h1 class="text-2xl font-black text-indigo-600">FoundIt</h1>
-            <p class="text-xs text-gray-400">Lost & Found Community</p>
+    <header>
+        <div class="flex justify-between items-center">
+            <div>
+                <h1 class="text-xl font-black text-indigo-600">FoundIt</h1>
+                <p class="text-[10px] text-gray-400 font-bold uppercase tracking-wider">Community Report</p>
+            </div>
+            <div class="flex items-center gap-2 bg-indigo-50 p-1.5 rounded-xl border border-indigo-100">
+                <input id="searchInput" type="text" placeholder="Search..." class="bg-transparent text-xs outline-none w-16">
+                <button id="searchBtn"><i data-lucide="search" class="w-3.5 h-3.5 text-indigo-600"></i></button>
+            </div>
         </div>
-        <div class="flex items-center gap-2 bg-indigo-50 p-2 rounded-2xl border border-indigo-100">
-            <input id="searchInput" type="text" placeholder="Search..." class="bg-transparent text-sm outline-none px-2 w-24">
-            <button id="searchBtn" class="bg-indigo-100 p-2 rounded-xl">
-                <i data-lucide="search" class="w-4 h-4 text-indigo-600"></i>
-            </button>
-        </div>
-    </div>
+    </header>
 
-    <!-- VIEWPORT -->
-    <div class="page-viewport">
-        <!-- HOME -->
-        <div id="homePage" class="page">
-            <div class="flex gap-2 mb-5">
-                <select id="filterType" class="flex-1 bg-slate-100 p-3 rounded-2xl text-sm outline-none">
-                    <option value="All">All</option>
+    <!-- MAIN SCROLL CONTENT -->
+    <main class="page-viewport">
+        <!-- HOME PAGE -->
+        <section id="homePage" class="page">
+            <div class="flex gap-2 mb-4">
+                <select id="filterType" class="flex-1 bg-slate-100 p-3 rounded-xl text-xs font-bold outline-none border-none">
+                    <option value="All">All Types</option>
                     <option value="Lost">Lost</option>
                     <option value="Found">Found</option>
                 </select>
-                <select id="filterCat" class="flex-1 bg-slate-100 p-3 rounded-2xl text-sm outline-none">
+                <select id="filterCat" class="flex-1 bg-slate-100 p-3 rounded-xl text-xs font-bold outline-none border-none">
                     <option value="All">All Categories</option>
                     <option value="Electronics">Electronics</option>
                     <option value="Wallets">Wallets</option>
                     <option value="Documents">Documents</option>
-                    <option value="Accessories">Accessories</option>
                     <option value="Keys">Keys</option>
-                    <option value="Bags">Bags</option>
                 </select>
             </div>
-            <div id="items" class="space-y-5"></div>
-        </div>
+            <div id="items" class="space-y-4 pb-4"></div>
+        </section>
 
-        <!-- POST -->
-        <div id="postPage" class="page hiddenPage">
-            <div class="bg-slate-100 p-1 rounded-2xl flex gap-1 mb-5">
-                <button id="lostBtn" class="flex-1 bg-red-500 text-white p-3 rounded-xl font-bold">Lost</button>
-                <button id="foundBtn" class="flex-1 text-gray-500 p-3 rounded-xl font-bold">Found</button>
+        <!-- POST PAGE -->
+        <section id="postPage" class="page hiddenPage">
+            <div class="flex bg-slate-100 p-1 rounded-xl gap-1 mb-4">
+                <button id="lostBtn" class="flex-1 bg-red-500 text-white p-3 rounded-lg font-bold text-xs transition-all">Lost</button>
+                <button id="foundBtn" class="flex-1 text-gray-500 p-3 rounded-lg font-bold text-xs transition-all">Found</button>
             </div>
-            <label id="imageLabel" class="border-2 border-dashed border-slate-200 bg-slate-50 rounded-3xl h-52 flex flex-col justify-center items-center mb-5 cursor-pointer">
-                <i data-lucide="camera" class="w-10 h-10 text-gray-400 mb-2"></i>
-                <p class="font-bold text-gray-500">Upload Photo</p>
+            
+            <label id="imageLabel" class="border-2 border-dashed border-slate-200 bg-slate-50 rounded-2xl h-32 flex flex-col justify-center items-center mb-4 cursor-pointer">
+                <i data-lucide="camera" class="w-6 h-6 text-gray-300 mb-1"></i>
+                <span class="text-[10px] font-bold text-gray-400">ADD PHOTO</span>
                 <input type="file" id="image" class="hidden" accept="image/*">
             </label>
-            <div id="imagePreviewContainer" class="hidden relative mb-5">
-                <img id="imagePreview" class="w-full h-56 object-cover rounded-3xl">
-                <button id="removeImageBtn" class="absolute top-3 right-3 bg-red-500 text-white p-2 rounded-full">
-                    <i data-lucide="x" class="w-4 h-4"></i>
-                </button>
+
+            <div id="imagePreviewContainer" class="hidden relative mb-4">
+                <img id="imagePreview" class="w-full h-40 object-cover rounded-2xl shadow-md">
+                <button id="removeImageBtn" class="absolute top-2 right-2 bg-red-500 text-white p-1.5 rounded-full"><i data-lucide="x" class="w-4 h-4"></i></button>
             </div>
-            <input id="title" placeholder="Item title" class="input mb-4">
-            <textarea id="desc" placeholder="Description" class="input h-28 resize-none mb-4"></textarea>
+
+            <input id="title" placeholder="What did you lose/find?" class="input mb-3">
+            <textarea id="desc" placeholder="Details (Color, Brand, etc.)" class="input h-20 mb-3"></textarea>
             
-            <div id="categoryGrid" class="grid grid-cols-2 gap-2 mb-5">
-                <button class="catBtn activeCat" data-val="Electronics"><span>💻</span> Electronics</button>
-                <button class="catBtn" data-val="Wallets"><span>👛</span> Wallets</button>
-                <button class="catBtn" data-val="Documents"><span>📄</span> Documents</button>
-                <button class="catBtn" data-val="Accessories"><span>⌚</span> Accessories</button>
-                <button class="catBtn" data-val="Keys"><span>🔑</span> Keys</button>
-                <button class="catBtn" data-val="Bags"><span>👜</span> Bags</button>
+            <div id="categoryGrid" class="grid grid-cols-2 gap-2 mb-4">
+                <button class="catBtn activeCat" data-val="Electronics">💻 Electronics</button>
+                <button class="catBtn" data-val="Wallets">👛 Wallets</button>
+                <button class="catBtn" data-val="Documents">📄 Documents</button>
+                <button class="catBtn" data-val="Keys">🔑 Keys</button>
             </div>
             <input type="hidden" id="category" value="Electronics">
             
-            <input id="itemLocation" placeholder="Location" class="input mb-4">
-            <input id="contactPhone" placeholder="Phone Number" class="input mb-10">
-            <button id="submitBtn" class="w-full bg-indigo-600 text-white p-4 rounded-2xl font-bold shadow-lg">Post Item</button>
-        </div>
+            <input id="itemLocation" placeholder="Where (Area, Building)?" class="input mb-3">
+            <input id="contactPhone" placeholder="Your Phone Number" class="input mb-6">
+            <button id="submitBtn" class="w-full bg-indigo-600 text-white p-4 rounded-xl font-bold shadow-lg">Submit Post</button>
+        </section>
 
-        <!-- ABOUT -->
-        <div id="aboutPage" class="page hiddenPage">
-            <div class="bg-indigo-50 w-20 h-20 rounded-3xl flex items-center justify-center mx-auto mb-5">
-                <i data-lucide="heart" class="w-10 h-10 text-indigo-600"></i>
-            </div>
-            <h2 class="text-3xl font-black text-center mb-4">About FoundIt</h2>
-            <p class="text-center text-gray-500 leading-relaxed">FoundIt helps people reconnect with their lost belongings quickly using community reports.</p>
-        </div>
-
-        <!-- PROFILE -->
-        <div id="profilePage" class="page hiddenPage">
-            <div class="bg-gradient-to-r from-indigo-500 to-purple-500 rounded-3xl p-6 text-white mb-5">
-                <div class="flex items-center gap-4">
-                    <div class="w-16 h-16 rounded-2xl bg-white/20 flex items-center justify-center">
-                        <i data-lucide="user" class="w-8 h-8"></i>
-                    </div>
-                    <div>
-                        <h2 class="font-black text-xl">My Account</h2>
-                        <p id="userEmail" class="text-sm opacity-80"></p>
-                    </div>
+        <!-- ABOUT PAGE -->
+        <section id="aboutPage" class="page hiddenPage">
+            <div class="text-center py-10">
+                <div class="bg-indigo-50 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <i data-lucide="info" class="w-8 h-8 text-indigo-600"></i>
                 </div>
+                <h2 class="text-2xl font-black mb-2">About FoundIt</h2>
+                <p class="text-sm text-gray-500 px-6">We help reconnect people with their lost belongings through community power.</p>
             </div>
-            <button id="logoutBtn" class="w-full bg-red-50 text-red-500 p-4 rounded-2xl font-bold mb-5">Logout</button>
-            <h3 class="font-bold text-lg mb-4">My Reports</h3>
+        </section>
+
+        <!-- PROFILE PAGE -->
+        <section id="profilePage" class="page hiddenPage">
+            <div class="bg-indigo-600 rounded-3xl p-6 text-white mb-6 shadow-xl">
+                <p class="text-xs uppercase font-bold opacity-70 mb-1">Signed in as</p>
+                <p id="userEmail" class="text-lg font-black truncate"></p>
+            </div>
+            <button id="logoutBtn" class="w-full bg-red-50 text-red-500 p-4 rounded-2xl font-bold mb-8">Logout Account</button>
+            <h3 class="font-black text-slate-800 mb-4 px-1">My Reports</h3>
             <div id="myPosts" class="space-y-3"></div>
-        </div>
-    </div>
+        </section>
+    </main>
 
     <!-- BOTTOM NAV -->
     <nav>
-        <div class="flex justify-around py-3">
-            <button id="homeBtn" class="navBtn flex flex-col items-center text-indigo-600 nav-active">
-                <i data-lucide="home" class="w-5 h-5"></i>
-                <span class="text-[11px] mt-1">Home</span>
+        <div class="nav-grid">
+            <button id="homeBtn" class="navBtn nav-active">
+                <i data-lucide="home"></i>
+                <span>Home</span>
             </button>
-            <button id="postBtn" class="navBtn flex flex-col items-center text-gray-400">
-                <i data-lucide="plus-circle" class="w-5 h-5"></i>
-                <span class="text-[11px] mt-1">Post</span>
+            <button id="postBtn" class="navBtn">
+                <i data-lucide="plus-square"></i>
+                <span>Post</span>
             </button>
-            <button id="aboutBtn" class="navBtn flex flex-col items-center text-gray-400">
-                <i data-lucide="info" class="w-5 h-5"></i>
-                <span class="text-[11px] mt-1">About</span>
+            <button id="aboutBtn" class="navBtn">
+                <i data-lucide="help-circle"></i>
+                <span>About</span>
             </button>
-            <button id="profileBtn" class="navBtn flex flex-col items-center text-gray-400">
-                <i data-lucide="user" class="w-5 h-5"></i>
-                <span class="text-[11px] mt-1">Profile</span>
+            <button id="profileBtn" class="navBtn">
+                <i data-lucide="user"></i>
+                <span>Profile</span>
             </button>
         </div>
     </nav>
@@ -231,71 +256,53 @@
     let currentUser = null;
     let postType = "Lost";
 
-    const pages = {
-        home: homePage,
-        post: postPage,
-        about: aboutPage,
-        profile: profilePage
-    };
+    const pages = { home: homePage, post: postPage, about: aboutPage, profile: profilePage };
+    const btns = { home: homeBtn, post: postBtn, about: aboutBtn, profile: profileBtn };
 
-    function show(pageKey, btn) {
+    function show(pageKey) {
         Object.values(pages).forEach(p => p.classList.add("hiddenPage"));
+        Object.values(btns).forEach(b => b.classList.remove("nav-active"));
+        
         pages[pageKey].classList.remove("hiddenPage");
+        btns[pageKey].classList.add("nav-active");
         
-        document.querySelectorAll(".navBtn").forEach(b => {
-            b.classList.remove("nav-active", "text-indigo-600");
-            b.classList.add("text-gray-400");
-        });
-        
-        btn.classList.add("nav-active", "text-indigo-600");
-        btn.classList.remove("text-gray-400");
-        
-        document.querySelector('.page-viewport').scrollTop = 0;
-        
-        // Manual Fix: Re-render icons whenever tab changes
+        document.querySelector('main').scrollTop = 0;
         if(window.lucide) lucide.createIcons();
     }
 
-    homeBtn.onclick = () => show('home', homeBtn);
-    postBtn.onclick = () => show('post', postBtn);
-    aboutBtn.onclick = () => show('about', aboutBtn);
-    profileBtn.onclick = () => show('profile', profileBtn);
+    homeBtn.onclick = () => show('home');
+    postBtn.onclick = () => show('post');
+    aboutBtn.onclick = () => show('about');
+    profileBtn.onclick = () => show('profile');
 
     onAuthStateChanged(auth, user => {
         if(user){
             currentUser = user;
-            authBox.classList.add("hidden");
-            appBox.classList.remove("hidden");
+            authBox.classList.add("hiddenPage");
+            appBox.classList.remove("hiddenPage");
             userEmail.innerText = user.email;
             loadItems();
             loadMyPosts();
         } else {
-            authBox.classList.remove("hidden");
-            appBox.classList.add("hidden");
+            authBox.classList.remove("hiddenPage");
+            appBox.classList.add("hiddenPage");
         }
         if(window.lucide) lucide.createIcons();
     });
 
-    registerBtn.onclick = () => {
-        createUserWithEmailAndPassword(auth, email.value, password.value).catch(e => alert(e.message));
-    };
-
-    loginBtn.onclick = () => {
-        signInWithEmailAndPassword(auth, email.value, password.value).catch(e => alert(e.message));
-    };
-
+    loginBtn.onclick = () => signInWithEmailAndPassword(auth, email.value, password.value).catch(e => alert(e.message));
+    registerBtn.onclick = () => createUserWithEmailAndPassword(auth, email.value, password.value).catch(e => alert(e.message));
     logoutBtn.onclick = () => signOut(auth);
 
-    lostBtn.onclick = () => {
-        postType = "Lost";
-        lostBtn.classList.add("bg-red-500","text-white");
-        foundBtn.classList.remove("bg-emerald-500","text-white");
+    lostBtn.onclick = () => { 
+        postType = "Lost"; 
+        lostBtn.className = "flex-1 bg-red-500 text-white p-3 rounded-lg font-bold text-xs"; 
+        foundBtn.className = "flex-1 text-gray-500 p-3 rounded-lg font-bold text-xs"; 
     };
-
-    foundBtn.onclick = () => {
-        postType = "Found";
-        foundBtn.classList.add("bg-emerald-500","text-white");
-        lostBtn.classList.remove("bg-red-500","text-white");
+    foundBtn.onclick = () => { 
+        postType = "Found"; 
+        foundBtn.className = "flex-1 bg-emerald-500 text-white p-3 rounded-lg font-bold text-xs"; 
+        lostBtn.className = "flex-1 text-gray-500 p-3 rounded-lg font-bold text-xs"; 
     };
 
     document.querySelectorAll(".catBtn").forEach(btn => {
@@ -315,85 +322,50 @@
         }
     };
 
-    removeImageBtn.onclick = () => {
-        image.value = "";
-        imageLabel.classList.remove("hidden");
-        imagePreviewContainer.classList.add("hidden");
-    };
+    removeImageBtn.onclick = () => { image.value = ""; imageLabel.classList.remove("hidden"); imagePreviewContainer.classList.add("hidden"); };
 
     submitBtn.onclick = async () => {
-        if(!title.value || !contactPhone.value){
-            return alert("Please fill all required fields");
-        }
-        submitBtn.innerText = "Uploading...";
+        if(!title.value || !contactPhone.value) return alert("Please fill required fields");
+        submitBtn.disabled = true;
+        submitBtn.innerText = "Processing...";
         let imageUrl = "";
         if(image.files[0]){
             const form = new FormData();
             form.append("image", image.files[0]);
-            try {
-                const res = await fetch(`https://api.imgbb.com/1/upload?key=${IMGBB_KEY}`, { method:"POST", body:form });
-                const data = await res.json();
-                imageUrl = data.data.url;
-            } catch (e) { console.error("Image upload failed"); }
+            const res = await fetch(`https://api.imgbb.com/1/upload?key=${IMGBB_KEY}`, { method:"POST", body:form });
+            const data = await res.json();
+            imageUrl = data.data.url;
         }
         await addDoc(collection(db, "items"), {
-            title:title.value,
-            desc:desc.value,
-            location:itemLocation.value,
-            category:category.value,
-            type:postType,
-            imageUrl,
-            phone:contactPhone.value,
-            user:currentUser.uid,
-            status:"Pending",
-            timestamp:Date.now()
+            title:title.value, desc:desc.value, location:itemLocation.value, category:category.value,
+            type:postType, imageUrl, phone:contactPhone.value, user:currentUser.uid, status:"Pending", timestamp:Date.now()
         });
         title.value = ""; desc.value = ""; itemLocation.value = ""; contactPhone.value = "";
         removeImageBtn.click();
-        submitBtn.innerText = "Post Item";
-        loadItems();
-        loadMyPosts();
-        show('home', homeBtn);
+        submitBtn.disabled = false;
+        submitBtn.innerText = "Submit Post";
+        loadItems(); loadMyPosts(); show('home');
     };
 
-    searchBtn.onclick = () => loadItems(searchInput.value);
-    searchInput.onkeyup = (e) => { if(e.key === "Enter") loadItems(searchInput.value); };
-
-    filterType.onchange = () => loadItems();
-    filterCat.onchange = () => loadItems();
-
     async function loadItems(keyword = ""){
-        items.innerHTML = `<div class="text-center py-10"><div class="animate-spin w-8 h-8 border-4 border-indigo-500 border-t-transparent rounded-full mx-auto"></div></div>`;
+        items.innerHTML = `<div class="text-center py-10"><div class="animate-spin w-6 h-6 border-2 border-indigo-500 border-t-transparent rounded-full mx-auto"></div></div>`;
         const snap = await getDocs(query(collection(db, "items"), orderBy("timestamp","desc")));
         items.innerHTML = "";
-
         snap.forEach(d => {
             const it = d.data();
-            const matchesSearch = it.title.toLowerCase().includes(keyword.toLowerCase());
-            
-            if(matchesSearch && (filterType.value === "All" || it.type === filterType.value) && (filterCat.value === "All" || it.category === filterCat.value)){
+            if(it.title.toLowerCase().includes(keyword.toLowerCase()) && (filterType.value === "All" || it.type === filterType.value) && (filterCat.value === "All" || it.category === filterCat.value)){
                 items.innerHTML += `
-                <div class="bg-white rounded-3xl overflow-hidden border border-slate-100 shadow-sm">
-                    <div class="relative">
-                        ${it.imageUrl ? `<img src="${it.imageUrl}" class="w-full h-64 object-cover">` : `<div class="h-64 bg-slate-100 flex items-center justify-center"><i data-lucide="image" class="w-12 h-12 text-slate-300"></i></div>`}
-                        <div class="absolute top-4 left-4">
-                            <span class="px-3 py-1 rounded-full text-xs font-bold ${it.type === "Lost" ? "bg-red-500 text-white" : "bg-emerald-500 text-white"}">${it.type}</span>
+                <div class="bg-white rounded-2xl overflow-hidden border border-slate-100 shadow-sm transition-transform active:scale-[0.98]">
+                    ${it.imageUrl ? `<img src="${it.imageUrl}" class="w-full h-44 object-cover">` : ''}
+                    <div class="p-4">
+                        <div class="flex justify-between items-start mb-1">
+                            <h3 class="font-bold text-slate-800 leading-tight">${it.title}</h3>
+                            <span class="text-[9px] font-black px-2 py-0.5 rounded-full uppercase ${it.type === 'Lost' ? 'bg-red-100 text-red-600' : 'bg-emerald-100 text-emerald-600'}">${it.type}</span>
                         </div>
-                    </div>
-                    <div class="p-5">
-                        <div class="flex justify-between items-start mb-2">
-                            <h3 class="font-black text-lg">${it.title}</h3>
-                            <span class="text-xs px-2 py-1 rounded-full ${it.status === "Resolved" ? "bg-gray-200 text-gray-500" : "bg-orange-100 text-orange-600"}">${it.status}</span>
-                        </div>
-                        <p class="text-sm text-gray-500 mb-4">${it.desc || "No description"}</p>
-                        <div class="flex items-center justify-between pt-4 border-t">
-                            <div>
-                                <p class="text-xs text-gray-400">Location</p>
-                                <p class="font-semibold text-sm">${it.location || "Unknown"}</p>
-                            </div>
-                            <div class="text-indigo-600 text-sm font-bold">
-                                Contact: ${it.phone}
-                            </div>
+                        <p class="text-[11px] text-gray-500 mb-3 line-clamp-2">${it.desc || 'No description provided.'}</p>
+                        <div class="flex justify-between items-center pt-3 border-t border-slate-50 text-[10px] font-bold">
+                            <span class="text-slate-400 flex items-center gap-1"><i data-lucide="map-pin" class="w-3 h-3"></i>${it.location || 'Unknown'}</span>
+                            <a href="tel:${it.phone}" class="text-indigo-600 flex items-center gap-1 bg-indigo-50 px-2 py-1 rounded-lg"><i data-lucide="phone" class="w-3 h-3"></i>Call</a>
                         </div>
                     </div>
                 </div>`;
@@ -409,33 +381,24 @@
             const it = d.data();
             if(it.user === currentUser.uid){
                 myPosts.innerHTML += `
-                <div class="bg-slate-50 p-4 rounded-2xl flex justify-between items-center">
+                <div class="bg-slate-50 p-4 rounded-2xl flex justify-between items-center text-xs border border-slate-100">
                     <div>
-                        <p class="font-bold">${it.title}</p>
-                        <button onclick="toggleStatus('${d.id}','${it.status}')" class="text-xs bg-indigo-100 text-indigo-600 px-3 py-1 rounded-lg mt-2">${it.status === "Pending" ? "Mark Resolved" : "Reopen"}</button>
+                        <p class="font-black text-slate-700">${it.title}</p>
+                        <button onclick="toggleStatus('${d.id}','${it.status}')" class="text-indigo-600 font-bold mt-1 inline-flex items-center gap-1">
+                           ${it.status === 'Pending' ? 'Mark Resolved' : 'Reopen Case'}
+                        </button>
                     </div>
-                    <button onclick="deletePost('${d.id}')" class="text-red-500"><i data-lucide="trash-2" class="w-5 h-5"></i></button>
+                    <button onclick="deletePost('${d.id}')" class="text-red-400 p-2"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
                 </div>`;
             }
         });
         if(window.lucide) lucide.createIcons();
     }
 
-    window.toggleStatus = async (id, cur) => {
-        await updateDoc(doc(db, "items", id), { status: cur === "Pending" ? "Resolved" : "Pending" });
-        loadItems(); loadMyPosts();
-    };
-
-    window.deletePost = async id => {
-        if(confirm("Delete report?")){
-            await deleteDoc(doc(db, "items", id));
-            loadItems(); loadMyPosts();
-        }
-    };
+    window.toggleStatus = async (id, cur) => { await updateDoc(doc(db, "items", id), { status: cur === "Pending" ? "Resolved" : "Pending" }); loadItems(); loadMyPosts(); };
+    window.deletePost = async id => { if(confirm("Permanently delete this report?")){ await deleteDoc(doc(db, "items", id)); loadItems(); loadMyPosts(); } };
     
-    // Initial load
     if(window.lucide) lucide.createIcons();
 </script>
-
 </body>
 </html>
